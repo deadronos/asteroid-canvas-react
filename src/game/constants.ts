@@ -25,7 +25,7 @@ export const SHIP = {
 export const ASTEROID = {
   large: { radius: 2.5, points: 20, speed: 3, splitsInto: 'medium' },
   medium: { radius: 1.5, points: 50, speed: 5, splitsInto: 'small' },
-  small: { radius: 0.7, points: 100, speed: 8, splitsTo: null },
+  small: { radius: 0.7, points: 100, speed: 8, splitsInto: null },
 };
 
 export const BULLET = {
