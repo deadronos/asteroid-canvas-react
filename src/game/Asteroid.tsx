@@ -7,16 +7,25 @@ interface AsteroidProps {
   asteroid: Asteroid;
 }
 
+function seededRandom(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+
 function generateIrregularPolyhedron(radius: number, seed: number): THREE.BufferGeometry {
   // Generate 8-12 vertices on a sphere with random perturbations
+  const random = seededRandom(seed);
   const vertexCount = 8 + (seed % 5);
   const positions: number[] = [];
 
   for (let i = 0; i < vertexCount; i++) {
     // Random point on sphere surface
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-    const r = radius * (0.7 + Math.random() * 0.5);
+    const theta = random() * Math.PI * 2;
+    const phi = Math.acos(2 * random() - 1);
+    const r = radius * (0.7 + random() * 0.5);
     const x = r * Math.sin(phi) * Math.cos(theta);
     const y = r * Math.sin(phi) * Math.sin(theta);
     const z = r * Math.cos(phi);
