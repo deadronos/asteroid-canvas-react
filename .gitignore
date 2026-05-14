@@ -1,0 +1,32 @@
+# general ignores
+node_ modules
+dist
+build
+coverage
+.DS_Store
+*.log
+
+# IDE specific ignores
+.vscode
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Environment variables
+.env.local*
+.env*
+!.env.example
+
+# Worktrees
+.worktrees
+
