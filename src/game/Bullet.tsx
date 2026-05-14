@@ -8,7 +8,7 @@ interface BulletProps {
 }
 
 export function BulletMesh({ bullet }: BulletProps) {
-  const { wireframeGeo, material } = useMemo(() => {
+  const { wireframeGeo, material, geo } = useMemo(() => {
     const geo = new THREE.OctahedronGeometry(0.3, 0);
     geo.scale(0.5, 2, 0.5);
     const wireGeo = new THREE.WireframeGeometry(geo);
@@ -26,8 +26,9 @@ export function BulletMesh({ bullet }: BulletProps) {
     return () => {
       wireframeGeo.dispose();
       material.dispose();
+      geo.dispose();
     };
-  }, [wireframeGeo, material]);
+  }, [wireframeGeo, material, geo]);
 
   return (
     <lineSegments

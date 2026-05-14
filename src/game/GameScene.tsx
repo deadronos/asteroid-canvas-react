@@ -256,8 +256,6 @@ export function GameScene({ keysRef, onDataChange }: { keysRef: React.MutableRef
             ship.position = { x: 0, y: 0, z: 0 };
             ship.velocity = { x: 0, y: 0, z: 0 };
           }
-          onDataChange({ ...data });
-          return;
         }
       }
     }
