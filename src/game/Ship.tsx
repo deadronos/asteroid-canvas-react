@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { COLORS } from './constants';
@@ -49,6 +49,15 @@ export function ShipMesh({ ship, keysRef }: ShipProps) {
     // Visibility (blink when invulnerable)
     meshRef.current.visible = !ship.invulnerable || Math.floor(Date.now() / 100) % 2 === 0;
   });
+
+  // Dispose Three.js resources on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      geometry.dispose();
+      wireframeGeo.dispose();
+      material.dispose();
+    };
+  }, [geometry, wireframeGeo, material]);
 
   return (
     <group>
