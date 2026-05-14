@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import * as THREE from 'three';
 import { COLORS } from './constants';
 import type { Bullet } from './types';
@@ -19,8 +19,15 @@ export function BulletMesh({ bullet }: BulletProps) {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
-    return { wireframeGeo: wireGeo, material: mat };
+    return { wireframeGeo: wireGeo, material: mat, geo };
   }, []);
+
+  useEffect(() => {
+    return () => {
+      wireframeGeo.dispose();
+      material.dispose();
+    };
+  }, [wireframeGeo, material]);
 
   return (
     <lineSegments
