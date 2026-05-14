@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { COLORS, PARTICLE } from './constants';
@@ -7,6 +7,8 @@ import type { Particle } from './types';
 interface ParticlesProps {
   particles: Particle[];
 }
+
+const SPREAD = 0.05;
 
 export function ParticleSystem({ particles }: ParticlesProps) {
   // Use a single line segments geometry for all particles (pooled)
@@ -30,6 +32,13 @@ export function ParticleSystem({ particles }: ParticlesProps) {
     return { geometry: geo, material: mat };
   }, []);
 
+  useEffect(() => {
+    return () => {
+      geometry.dispose();
+      material.dispose();
+    };
+  }, [geometry, material]);
+
   useFrame(() => {
     if (!ref.current) return;
 
@@ -42,14 +51,13 @@ export function ParticleSystem({ particles }: ParticlesProps) {
 
       // Two vertices per particle (a line segment "dot")
       // Use same position twice for a dot effect (or slightly offset)
-      const spread = 0.05;
 
       positions[drawCount * 6 + 0] = p.position.x;
       positions[drawCount * 6 + 1] = p.position.y;
       positions[drawCount * 6 + 2] = p.position.z;
-      positions[drawCount * 6 + 3] = p.position.x + spread;
-      positions[drawCount * 6 + 4] = p.position.y + spread;
-      positions[drawCount * 6 + 5] = p.position.z + spread;
+      positions[drawCount * 6 + 3] = p.position.x + SPREAD;
+      positions[drawCount * 6 + 4] = p.position.y + SPREAD;
+      positions[drawCount * 6 + 5] = p.position.z + SPREAD;
 
       drawCount++;
     }
