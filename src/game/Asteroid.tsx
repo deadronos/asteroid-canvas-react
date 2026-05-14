@@ -1,5 +1,6 @@
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo, useEffect } from 'react';
 import * as THREE from 'three';
+// @ts-ignore - ConvexGeometry from three/examples/jsm has no bundled types
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
 import { COLORS } from './constants';
 import type { Asteroid } from './types';
@@ -19,7 +20,7 @@ function seededRandom(seed: number): () => number {
 function generateIrregularPolyhedron(radius: number, seed: number): THREE.BufferGeometry {
   // Generate 8-12 vertices on a sphere with random perturbations
   const random = seededRandom(seed);
-  const vertexCount = 8 + (seed % 5);
+  const vertexCount = 8 + (Math.abs(seed) % 5);
   const vectors: THREE.Vector3[] = [];
 
   for (let i = 0; i < vertexCount; i++) {
