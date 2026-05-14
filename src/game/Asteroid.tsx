@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
 import { COLORS } from './constants';
 import type { Asteroid } from './types';
 
@@ -19,7 +20,7 @@ function generateIrregularPolyhedron(radius: number, seed: number): THREE.Buffer
   // Generate 8-12 vertices on a sphere with random perturbations
   const random = seededRandom(seed);
   const vertexCount = 8 + (seed % 5);
-  const positions: number[] = [];
+  const vectors: THREE.Vector3[] = [];
 
   for (let i = 0; i < vertexCount; i++) {
     // Random point on sphere surface
@@ -29,15 +30,11 @@ function generateIrregularPolyhedron(radius: number, seed: number): THREE.Buffer
     const x = r * Math.sin(phi) * Math.cos(theta);
     const y = r * Math.sin(phi) * Math.sin(theta);
     const z = r * Math.cos(phi);
-    positions.push(x, y, z);
+    vectors.push(new THREE.Vector3(x, y, z));
   }
 
-  // Create convex hull approximation using the vertices
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-
   // Return the convex hull geometry (approximate — works well enough for wireframe asteroids)
-  return new THREE.ConvexGeometry(positions as unknown as THREE.Vector3[]);
+  return new ConvexGeometry(vectors);
 }
 
 export function AsteroidMesh({ asteroid }: AsteroidProps) {
@@ -55,6 +52,14 @@ export function AsteroidMesh({ asteroid }: AsteroidProps) {
     });
     return { geometry: geo, wireframeGeo: wireGeo, material: mat };
   }, [asteroid.id, asteroid.radius]);
+
+  useEffect(() => {
+    return () => {
+      geometry.dispose();
+      wireframeGeo.dispose();
+      material.dispose();
+    };
+  }, [geometry, wireframeGeo, material]);
 
   return (
     <lineSegments
