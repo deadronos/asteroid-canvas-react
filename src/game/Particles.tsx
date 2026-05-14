@@ -49,6 +49,10 @@ export function ParticleSystem({ particles }: ParticlesProps) {
       const p = particles[i];
       if (p.lifetime <= 0) continue;
 
+      // Fade opacity based on remaining lifetime
+      const fade = Math.max(0, p.lifetime / p.maxLifetime);
+      material.opacity = 0.8 * fade;
+
       // Two vertices per particle (a line segment "dot")
       // Use same position twice for a dot effect (or slightly offset)
 

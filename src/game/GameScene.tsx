@@ -279,16 +279,18 @@ export function GameScene({ keysRef, onDataChange }: { keysRef: React.MutableRef
     }
 
     if (data.state === 'SHIP_DESTROYED') {
-      data.levelClearTimer -= delta;
-      if (data.levelClearTimer <= 0) {
+      ship.invulnerableTimer -= delta;
+      if (ship.invulnerableTimer <= 0) {
         data.state = 'PLAYING';
       }
     }
 
     // Camera — tethered orbit
-    const camX = ship.position.x - Math.sin(ship.rotation) * CAMERA.offsetBack;
+    const isThrusting = keys.up && data.state === 'PLAYING';
+    const camOffset = isThrusting ? CAMERA.offsetBack * 1.5 : CAMERA.offsetBack;
+    const camX = ship.position.x - Math.sin(ship.rotation) * camOffset;
     const camY = ship.position.y + CAMERA.offsetUp;
-    const camZ = ship.position.z - Math.cos(ship.rotation) * CAMERA.offsetBack;
+    const camZ = ship.position.z - Math.cos(ship.rotation) * camOffset;
 
     const camPos = new THREE.Vector3(camX, camY, camZ);
     const lookAt = new THREE.Vector3(ship.position.x, ship.position.y, ship.position.z);
