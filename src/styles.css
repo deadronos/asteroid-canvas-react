@@ -1,0 +1,50 @@
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: 'Courier New', Courier, monospace;
+  color: #00ffff;
+  font-size: 16px;
+  text-shadow: 0 0 8px #00ffff, 0 0 16px #00ffff;
+}
+
+.hud-top-left {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 8px 12px;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.hud-top-right {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 8px 12px;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.hud-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 24px 40px;
+  border: 1px solid rgba(0, 255, 255, 0.4);
+}
+
+.title {
+  font-size: 48px;
+  font-weight: bold;
+  letter-spacing: 8px;
+  margin-bottom: 16px;
+}
+
+.subtitle {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
