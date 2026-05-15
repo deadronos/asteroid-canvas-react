@@ -103,7 +103,6 @@ export function GameScene({ keysRef, onDataChange }: { keysRef: React.MutableRef
       if (data.state === 'START' || data.state === 'GAME_OVER') {
         gameDataRef.current = initGame(1, GAME.startLives, 0);
         onDataChange(gameDataRef.current);
-        return;
       }
     }
     if (!keys.enter) enterPressed.current = false;
