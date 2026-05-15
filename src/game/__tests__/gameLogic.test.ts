@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { wrapPosition, sphereCollision, initGame } from '../gameUtils';
 import { WORLD, SHIP, ASTEROID, BULLET, PARTICLE, CAMERA, GAME, COLORS } from '../constants';
-import type { Vector3 } from './types';
+import type { Vector3, GameData, Ship, Asteroid, Bullet, Particle } from '../types';
 
 describe('wrapPosition', () => {
   it('should wrap x within world bounds', () => {
@@ -316,7 +316,7 @@ describe('constants', () => {
 
 describe('types', () => {
   it('should accept valid GameState values', () => {
-    const states: import('./types').GameState[] = ['START', 'PLAYING', 'SHIP_DESTROYED', 'LEVEL_CLEAR', 'GAME_OVER'];
+    const states: GameData['state'][] = ['START', 'PLAYING', 'SHIP_DESTROYED', 'LEVEL_CLEAR', 'GAME_OVER'];
     states.forEach(state => expect(state).toBeDefined());
   });
 
@@ -328,7 +328,7 @@ describe('types', () => {
   });
 
   it('should accept valid Ship object', () => {
-    const ship: import('./types').Ship = {
+    const ship: Ship = {
       position: { x: 0, y: 0, z: 0 },
       velocity: { x: 0, y: 0, z: 0 },
       rotation: 0,
@@ -340,7 +340,7 @@ describe('types', () => {
   });
 
   it('should accept valid Asteroid object', () => {
-    const asteroid: import('./types').Asteroid = {
+    const asteroid: Asteroid = {
       id: 1,
       position: { x: 0, y: 0, z: 0 },
       velocity: { x: 0, y: 0, z: 0 },
@@ -354,7 +354,7 @@ describe('types', () => {
   });
 
   it('should accept valid Bullet object', () => {
-    const bullet: import('./types').Bullet = {
+    const bullet: Bullet = {
       id: 1,
       position: { x: 0, y: 0, z: 0 },
       velocity: { x: 0, y: 0, z: 0 },
@@ -364,7 +364,7 @@ describe('types', () => {
   });
 
   it('should accept valid Particle object', () => {
-    const particle: import('./types').Particle = {
+    const particle: Particle = {
       id: 1,
       position: { x: 0, y: 0, z: 0 },
       velocity: { x: 0, y: 0, z: 0 },
@@ -376,7 +376,7 @@ describe('types', () => {
   });
 
   it('should accept valid GameData object', () => {
-    const game: import('./types').GameData = {
+    const game: GameData = {
       state: 'START',
       score: 0,
       lives: 3,
