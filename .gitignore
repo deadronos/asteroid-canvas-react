@@ -1,5 +1,5 @@
 # general ignores
-node_ modules
+node_modules
 dist
 build
 coverage
