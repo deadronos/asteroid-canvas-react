@@ -12,11 +12,13 @@
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
+    "koota": "^0.6.6",
+    "lodash": "^4.18.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "three": "^0.184.0",
-    "koota": "^0.6.6"
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
@@ -27,10 +29,13 @@
     "@types/three": "^0.184.1",
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/coverage-v8": "^4.1.6",
+    "eslint": "^10.4.0",
     "happy-dom": "^20.9.0",
     "jsdom": "^29.1.1",
+    "prettier": "^3.8.3",
+    "prettier-eslint": "^16.3.0",
     "typescript": "~6.0.3",
-    "vite": "^8.0.12",
+    "vite": "^8.0.13",
     "vitest": "^4.1.6"
   }
 }
