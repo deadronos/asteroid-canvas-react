@@ -1,14 +1,15 @@
 import { useWorld } from 'koota/react';
 import Game from './game/Game';
 import { WorldProvider } from 'koota/react';
+import { createWorld } from 'koota';
 
 
-const world=useWorld();
+const world=createWorld();
 
 export default function App() {
   return (
     <WorldProvider world={world}>
-      <Game />
+      <Game className="root" />
     </WorldProvider>
   );
 }
