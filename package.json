@@ -15,7 +15,8 @@
     "@react-three/fiber": "^9.6.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "three": "^0.184.0"
+    "three": "^0.184.0",
+    "koota": "^0.6.6"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
