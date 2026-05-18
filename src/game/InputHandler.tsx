@@ -61,7 +61,7 @@ export default function InputHandler({ inputRef }: { inputRef: React.RefObject<H
         const newAcceleration = 
             currentAcceleration.add(accelerationVector).
             applyEuler(new THREE.Euler(gameState.player.pitch, gameState.player.yaw, gameState.player.roll));
-            
+
         if ((accelerationVector.length()===0) && currentAcceleration.length()>0) {
             // If no input is given but there is current acceleration, we should apply damping to slow down the player
             const dampingFactor = 0.9; // Adjust this value for more or less damping
@@ -83,7 +83,13 @@ export default function InputHandler({ inputRef }: { inputRef: React.RefObject<H
         
         gameState.updatePlayerRotation(gameState.player.pitch, newRoll, gameState.player.yaw);    
         
-
+        if (!inputState.forward && !inputState.backward && !inputState.left && !inputState.right && !inputState.up && !inputState.down && !inputState.rollLeft && !inputState.rollRight) {
+            // No input, player is idle
+            gameState.setPlayer({ ...gameState.player, isIdle: true });
+        } else {
+            // Player is giving input, not idle
+            gameState.setPlayer({ ...gameState.player, isIdle: false });
+        }
         gameState.updatePlayerAcceleration(newAcceleration);
     };
 
