@@ -3,16 +3,26 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { OrbitControls, Stars } from '@react-three/drei';
 import PlayerShip from './PlayerShip';
 import Asteroid from './Asteroid';
-import type { Vec3, GameStateType } from './types';
+import { GameContext } from '../App';
+import HUD from './Hud';
+import InputHandler from './InputHandler';
+import '../styles.css';
+
+
 
 
 export default function Game() {
- 
+  const gameState = useContext(GameContext);
+
+  if (!gameState) {
+    return <div>Loading...</div>;
+  }
   
 
   return (
     <div className="game-container">
-        <h1 className="game-title">Game Component</h1>
+        <HUD />
+        <InputHandler />
         <Canvas className="3d-scene" shadows={true} >            
             {/* 3D content goes here */}
             <OrbitControls />
@@ -21,7 +31,6 @@ export default function Game() {
             <axesHelper args={[5]} />
             <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade />
             <PlayerShip />
-            <Asteroid position={{x: 5, y: 0, z: 0}} />
         </Canvas>
     </div>
   );
