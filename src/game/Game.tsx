@@ -24,7 +24,7 @@ export default function Game() {
         <HUD />
             <Canvas className="3d-scene" shadows={true} >            
                 {/* 3D content goes here */}
-                <OrbitControls />
+                <OrbitControls makeDefault />
                 <InputHandler />
                 <Systems />
                 <ambientLight intensity={0.5} />

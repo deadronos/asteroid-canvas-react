@@ -55,6 +55,9 @@ export interface InputState {
         yawLeft: boolean;
         yawRight: boolean;
         cameraFollowToggle: boolean;
+        pointerLocked: boolean;
+        mouseDeltaX: number;
+        mouseDeltaY: number;
 };
 
 export interface GameState extends GameStateProps {
@@ -67,6 +70,7 @@ export interface GameState extends GameStateProps {
     setAsteroids: (asteroids: Asteroid[]) => void;
     spawnAsteroid: (asteroid: Asteroid) => void;
     toggleCameraFollow: () => void;
+    togglePointerLock: () => void;
     updatePlayerPosition: (position: Vec3) => void;
     updatePlayerVelocity: (velocity: Vec3) => void;
     updatePlayerAcceleration: (acceleration: Vec3) => void;
@@ -96,6 +100,9 @@ export const createGameStore = (initProps?: Partial<GameStateProps>) => {
             yawLeft: false,
             yawRight: false,
             cameraFollowToggle: false,
+            pointerLocked: false,
+            mouseDeltaX: 0,
+            mouseDeltaY: 0,
         },
         player: {
             id: 1,
@@ -127,6 +134,7 @@ export const createGameStore = (initProps?: Partial<GameStateProps>) => {
         setInputState: (inputState) => set({ inputState }),
         spawnAsteroid: (asteroid) => set((state) => ({ asteroids: [...state.asteroids, asteroid] })),
         toggleCameraFollow: () => set((state) => ({ player: { ...state.player, isCameraFollow: !state.player.isCameraFollow } })), // Example of toggling camera follow on the player state
+        togglePointerLock: () => set((state) => ({ inputState: { ...state.inputState, pointerLocked: !state.inputState.pointerLocked } })), // Example of toggling pointer lock in the input state
         updatePlayerPosition: (position) => set((state) => ({ player: { ...state.player, position } })),
         updatePlayerVelocity: (velocity) => set((state) => ({ player: { ...state.player, velocity } })),
         updatePlayerAcceleration: (acceleration) => set((state) => ({ player: { ...state.player, acceleration } })),

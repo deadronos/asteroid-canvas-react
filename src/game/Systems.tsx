@@ -1,8 +1,10 @@
 import React, { useContext, useRef, useState } from 'react';
 import { GameContext } from '../App';
-import { useFrame, Canvas } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { GameState } from './types';
 import * as THREE from 'three';
+import { Camera } from 'three';
+import { useStore } from 'zustand';
 
 
 export default function Systems() {
@@ -10,6 +12,7 @@ export default function Systems() {
     const gameState = useContext(GameContext);
     const lastTimeRef = useRef(0);
     const nowTimeRef = useRef(0);
+    const camera = useThree().camera;
 
     if (!gameState) {
         return <div>Loading...</div>;
@@ -40,6 +43,10 @@ export default function Systems() {
             gameState.toggleCameraFollow();
         }
 
+        if (inputState.pointerLocked) {
+            gameState.togglePointerLock();
+        }
+
     }
 
     function handlePlayerAcceleration(gameState:GameState, dt:number) {
@@ -65,20 +72,39 @@ export default function Systems() {
 
     }
 
-    function updateCamera(gameState:GameState) {
+    function updateCamera(gameState:GameState, camera?:Camera) {
         // Placeholder for camera update logic based on player position and isCameraFollow state
         const cameraFollow = gameState.player.isCameraFollow;
+        const playerPosition = gameState.player.position as THREE.Vector3;
+        const playerRotation = new THREE.Euler(gameState.player.pitch, gameState.player.yaw, gameState.player.roll);
+       
         
         if (cameraFollow) {
+            if (!camera) {
+                console.warn('Camera is not available for follow logic');
+                return null;
+            }
             // Implement camera follow logic here, e.g. update camera position to match player position with some offset
+            const offset = new THREE.Vector3(0, 5, 10).applyEuler(playerRotation);
+            const desiredCameraPosition = playerPosition.clone().add(offset);
+            const currentCameraOffsetVector = camera.position.clone().sub(playerPosition).applyEuler(camera.rotation.clone());
+            const desiredCameraPositionCurrentOffsetRestored = desiredCameraPosition.clone().sub(currentCameraOffsetVector);
+
+
+            camera.position.lerp(desiredCameraPositionCurrentOffsetRestored, 0.1); // Smoothly interpolate to the desired position
+            camera.lookAt(playerPosition);
+            console.debug('Camera follow is enabled. Updating camera position to:', camera.position);
+        } else {
+            console.debug('Camera follow is disabled. Current player position:', playerPosition);
         }
+        return null;
     }
 
     useFrame((state,dt) => {
         lastTimeRef.current = nowTimeRef.current;
         nowTimeRef.current = state.clock.getElapsedTime();
         const deltaTime = nowTimeRef.current - lastTimeRef.current;
-        const targetFPS=1/60/1000; 
+        const targetFPS=1/60/1000;
 
         if (lastTimeRef.current === 0) return; // skip the first frame to avoid large dt
         if (nowTimeRef.current < lastTimeRef.current) return; // skip if time goes backwards (shouldn't happen but just in case)
@@ -89,7 +115,7 @@ export default function Systems() {
         handlePlayerVelocity(gameState.getState(), deltaTime);
         handlePlayerPosition(gameState.getState(), deltaTime);
         handlePlayerRotation(gameState.getState(), deltaTime);
-        updateCamera(gameState.getState());
+        updateCamera(gameState.getState(), camera);
     });
 
     return null;

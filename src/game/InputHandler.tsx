@@ -26,7 +26,27 @@ export function useKeyboardInput() {
     return keyboard;
 }
 
-export function getInputState(keyboard: Record<string, boolean>) {
+export function useMouseInput() {
+    const mouseDelta = useMemo(() => ({ x: 0, y: 0 }), []);
+    const mouseMove = (e: MouseEvent) => {
+        mouseDelta.x += e.movementX;
+        mouseDelta.y += e.movementY;
+    };
+
+    useEffect(() => {
+        // Add event listener for mouse movement
+        window.addEventListener('mousemove', mouseMove);
+        return () => {
+            // Clean up event listener on unmount
+            window.removeEventListener('mousemove', mouseMove);
+        }
+    }, []);
+
+    return mouseDelta;
+}
+
+
+export function getInputState(keyboard: Record<string, boolean>, mouse: { x: number; y: number }) {
     return {
         forward: keyboard['KeyW'] || false,
         backward: keyboard['KeyS'] || false,
@@ -37,6 +57,9 @@ export function getInputState(keyboard: Record<string, boolean>) {
         rollLeft: keyboard['KeyQ'] || false,
         rollRight: keyboard['KeyE'] || false,
         cameraFollowToggle: keyboard['KeyC'] || false,
+        pointerLocked: keyboard['KeyP'] || false,
+        mouseDeltaX: mouse.x,
+        mouseDeltaY: mouse.y,
     }
 }
 
@@ -53,6 +76,7 @@ export default function InputHandler(): JSX.Element | null {
 
 
     const keyboard = useKeyboardInput();
+    const mouse = useMouseInput();
 
     function applyInputToGameState(gameState: GameState, inputState: ReturnType<typeof getInputState>, dt: number) {
         const accelerationMagnitude = 0.1; // units per second squared
@@ -121,7 +145,7 @@ export default function InputHandler(): JSX.Element | null {
             if (debug) console.debug(`Processing frame with deltaTime: ${deltaTime.toFixed(2)}ms`);
             shouldProcessFrameRef.current = false;            
             lastTimeRef.current = nowTimeRef.current;
-            const inputState = getInputState(keyboard);
+            const inputState = getInputState(keyboard, mouse);
             console.debug('Input State:', inputState);
             gameState.getState().setInputState(inputState as InputState);
         }
