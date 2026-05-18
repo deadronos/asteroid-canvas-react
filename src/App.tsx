@@ -1,7 +1,7 @@
 
 import Game from './game/Game';
 
-import { createContext, useState } from 'react';
+import { createContext, StrictMode, useState } from 'react';
 import { createGameStore, GameStore } from './game/types';
 import type { Vec3 } from './game/types';
 
@@ -30,8 +30,11 @@ export const GameContext = createContext<GameStore|null>
 export default function App() {
   const [gameState]=useState(()=>createGameStore());
   return (
-    <GameContext.Provider value={gameState}>
-      <Game />
-    </GameContext.Provider>
+    <StrictMode>
+      <GameContext.Provider value={gameState}>
+        <Game />
+      </GameContext.Provider>
+    </StrictMode>
   );
 }
+    

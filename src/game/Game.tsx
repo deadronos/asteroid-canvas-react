@@ -7,11 +7,13 @@ import { GameContext } from '../App';
 import HUD from './Hud';
 import InputHandler from './InputHandler';
 import '../styles.css';
+import Systems from './Systems';
 
 
 
 
 export default function Game() {
+  const inputRef = React.useRef<HTMLDivElement>(null);
   const gameState = useContext(GameContext);
 
   if (!gameState) {
@@ -22,10 +24,11 @@ export default function Game() {
   return (
     <div className="game-container">
         <HUD />
-        <InputHandler />
         <Canvas className="3d-scene" shadows={true} >            
             {/* 3D content goes here */}
             <OrbitControls />
+            <InputHandler inputRef={inputRef} />
+            <Systems />
             <ambientLight intensity={0.5} />
             <pointLight position={[10, 10, 10]} />
             <axesHelper args={[5]} />

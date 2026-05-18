@@ -11,6 +11,16 @@
   margin-bottom: 16px;
 }
 
+.hud-right-player-info {
+  position: absolute;
+  z-index: 10;
+  top: 20px;
+  right: 20px;
+  font-size: 16px;
+  color: white;
+  text-align: right;
+}
+
 
 
 html, body, #root {

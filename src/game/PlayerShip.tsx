@@ -1,7 +1,8 @@
 import { useStore } from "zustand";
 import { GameContext } from "../App";
-import { useContext } from "react";
+import { JSX, useContext,useRef } from "react";
 import { Vec3 } from "./types";
+import * as THREE from 'three';
 import { useFrame } from "@react-three/fiber";
 
 export default function PlayerShip() {
@@ -12,30 +13,46 @@ export default function PlayerShip() {
     }
 
     const  player = useStore(gameState, (state) => state.player);
-    const  meshRef= useStore(gameState, (state) => state.player.meshRef);
-    const updatePlayerVelocity = useStore(gameState, (state) => state.updatePlayerVelocity);
-    const updatePlayerPosition = useStore(gameState, (state) => state.updatePlayerPosition);
-    const updatePlayerAcceleration = useStore(gameState, (state) => state.updatePlayerAcceleration);
-    const acceleration = useStore(gameState, (state) => state.player.acceleration) as Vec3;
-    const velocity = useStore(gameState, (state) => state.player.velocity) as Vec3;
-    const position = useStore(gameState, (state) => state.player.position) as Vec3;
-
-    useFrame(() => {
-        if (player.isIdle) return; // if player is idle, skip updating position and rotation
-        updatePlayerVelocity(
-        
-
-        if (meshRef) {
-            meshRef.position.set(player.position.x, player.position.y, player.position.z);
-            meshRef.rotation.set(player.pitch, player.yaw, player.roll);
-        }
+    const  meshRef= useRef<THREE.Mesh>(null);
+    const  position:THREE.Vector3 = useStore(gameState, (state) => state.player.position)as THREE.Vector3;  
+    const  rotation:THREE.Euler = new THREE.Euler(player.pitch, player.yaw, player.roll);
+    useFrame((state,dt) => {
+        meshRef.current?.position.copy(position);
+        meshRef.current?.rotation.copy(rotation);
+        // Placeholder    
     });
+
+    interface ShipMeshProps {
+        position: THREE.Vector3;
+        rotation: THREE.Euler;
+    }
+
+    function ShipMesh({ position, rotation }: ShipMeshProps): JSX.Element {
+        const forwardVector = new THREE.Vector3(0, 0, -1).applyEuler(rotation);
+        const bridgePosition = position.clone().add(forwardVector.clone().multiplyScalar(1));
+
+        const bridgeRotation = new THREE.Euler(rotation.x, rotation.y, rotation.z);
+        const bridgeSize = new THREE.Vector3(0.5, 0.2, 0.5);
+        const hullSize = new THREE.Vector3(1, 0.5, 2);
+        const hullPosition = position.clone().add(forwardVector.clone().multiplyScalar(0));
+        const hullRotation = new THREE.Euler(rotation.x, rotation.y, rotation.z);
+
+        return (
+            <group ref={meshRef} position={position} rotation={rotation}>
+                <mesh position={bridgePosition} rotation={bridgeRotation} castShadow receiveShadow>
+                    <boxGeometry args={[0.8, 0.3, 1]} />
+                    {player.isIdle ? <meshStandardMaterial color="yellow" /> : <meshStandardMaterial color="red" />}
+                </mesh>
+                <mesh position={hullPosition} rotation={hullRotation} castShadow receiveShadow>
+                    <boxGeometry args={[1, 0.5, 2]} />
+                    {player.isIdle ? <meshStandardMaterial color="blue" /> : <meshStandardMaterial color="red" />}
+                </mesh>
+            </group>
+        );    
+    }
     
 
     return (
-        <mesh ref={meshRef} position={player.position as Vec3} rotation={[player.pitch, player.yaw, player.roll]}>
-            <boxGeometry args={[1, 0.5, 2]} />
-            {player.isIdle ? <meshStandardMaterial color="blue" /> : <meshStandardMaterial color="red" />}
-        </mesh>    
+        <ShipMesh position={position} rotation={rotation} />
     );
 }
