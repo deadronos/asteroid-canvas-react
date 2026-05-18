@@ -1,8 +1,9 @@
 import { JSX, useContext, useMemo, useEffect, useState } from "react";
 import { GameContext } from "../App";
 import { useFrame } from "@react-three/fiber";
-import type { GameState, GameStore } from "./types";
+import type { GameState, InputState } from "./types";
 import * as THREE from 'three';
+import { useStore } from "zustand";
 
 
 export function useKeyboardInput() {
@@ -35,18 +36,21 @@ export function getInputState(keyboard: Record<string, boolean>) {
         down: keyboard['ShiftLeft'] || false,
         rollLeft: keyboard['KeyQ'] || false,
         rollRight: keyboard['KeyE'] || false,
+        cameraFollowToggle: keyboard['KeyC'] || false,
     }
 }
 
-export default function InputHandler({ inputRef }: { inputRef: React.RefObject<HTMLDivElement> }): JSX.Element | null {
+export default function InputHandler(): JSX.Element | null {
     const [debug, setDebug] = useState(false);
     const gameState = useContext(GameContext);
     const lastTimeRef = useMemo(() => ({ current: 0 }), []);
     const nowTimeRef = useMemo(() => ({ current: 0 }), []);
     const shouldProcessFrameRef = useMemo(() => ({ current: true }), []);
+    
     if (!gameState) {
         return <div>Loading...</div>;
     }
+
 
     const keyboard = useKeyboardInput();
 
@@ -119,7 +123,7 @@ export default function InputHandler({ inputRef }: { inputRef: React.RefObject<H
             lastTimeRef.current = nowTimeRef.current;
             const inputState = getInputState(keyboard);
             console.debug('Input State:', inputState);
-            applyInputToGameState(gameState.getState(), inputState, deltaTime);
+            gameState.getState().setInputState(inputState as InputState);
         }
         console.debug(`Frame time: ${deltaTime.toFixed(4)}ms`);
         return;
