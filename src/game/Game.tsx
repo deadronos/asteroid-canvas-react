@@ -13,6 +13,7 @@ import * as THREE from 'three';
 
 export default function Game() {
   const gameState = useContext(GameContext);
+  const orbitControlsRef = React.useRef<OrbitControls>(null);
 
   if (!gameState) {
     return <div>Loading...</div>;
@@ -24,9 +25,9 @@ export default function Game() {
         <HUD />
             <Canvas className="3d-scene" shadows={true} >            
                 {/* 3D content goes here */}
-                <OrbitControls makeDefault />
+                <OrbitControls ref={orbitControlsRef} makeDefault />
                 <InputHandler />
-                <Systems />
+                <Systems orbitControlsRef={orbitControlsRef} />
                 <ambientLight intensity={0.5} />
                 <pointLight position={[10, 10, 10]} />
                 <axesHelper args={[5]} />

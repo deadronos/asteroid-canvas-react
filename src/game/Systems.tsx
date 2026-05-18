@@ -5,14 +5,16 @@ import { GameState } from './types';
 import * as THREE from 'three';
 import { Camera } from 'three';
 import { useStore } from 'zustand';
+import * as DREI from '@react-three/drei';
 
 
-export default function Systems() {
+export default function Systems({ orbitControlsRef }: { orbitControlsRef: React.RefObject<typeof DREI.OrbitControls> }) {
     const [debug, setDebug] = useState(false);
     const gameState = useContext(GameContext);
     const lastTimeRef = useRef(0);
     const nowTimeRef = useRef(0);
     const camera = useThree().camera;
+    const controls = useRef(orbitControlsRef.current);
 
     if (!gameState) {
         return <div>Loading...</div>;
@@ -76,7 +78,7 @@ export default function Systems() {
         // Placeholder for camera update logic based on player position and isCameraFollow state
         const cameraFollow = gameState.player.isCameraFollow;
         const playerPosition = gameState.player.position as THREE.Vector3;
-        const playerRotation = new THREE.Euler(gameState.player.pitch, gameState.player.yaw, gameState.player.roll);
+        const prevPlayerPosition = (gameState.player.position as THREE.Vector3).clone();
        
         
         if (cameraFollow) {
@@ -85,14 +87,14 @@ export default function Systems() {
                 return null;
             }
             // Implement camera follow logic here, e.g. update camera position to match player position with some offset
-            const offset = new THREE.Vector3(0, 5, 10).applyEuler(playerRotation);
-            const desiredCameraPosition = playerPosition.clone().add(offset);
-            const currentCameraOffsetVector = camera.position.clone().sub(playerPosition).applyEuler(camera.rotation.clone());
-            const desiredCameraPositionCurrentOffsetRestored = desiredCameraPosition.clone().sub(currentCameraOffsetVector);
-
-
-            camera.position.lerp(desiredCameraPositionCurrentOffsetRestored, 0.1); // Smoothly interpolate to the desired position
-            camera.lookAt(playerPosition);
+            const prevPlayerPosition = (gameState.player.position as THREE.Vector3).clone();
+            const delta=playerPosition.clone().sub(prevPlayerPosition);
+            const newCameraPosition = camera.position.clone().add(delta);
+            
+            orbitControlsRef.current.target.add(delta); // Move the target of the orbit controls by the same delta to keep it centered on the player
+            orbitControlsRef.current.
+            camera.position.lerp(newCameraPosition, 0.1); // Smoothly interpolate to the desired position
+            
             console.debug('Camera follow is enabled. Updating camera position to:', camera.position);
         } else {
             console.debug('Camera follow is disabled. Current player position:', playerPosition);
