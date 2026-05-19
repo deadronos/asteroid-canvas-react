@@ -1,3 +1,4 @@
+import { copyBodyTranslation } from './spatial';
 import { DESPAWN_DISTANCE } from './sessionConstants';
 import type { EntityStore } from './sessionTypes';
 import type { GameEntity } from './types';
@@ -12,7 +13,7 @@ export function createProjectileSystems(store: EntityStore) {
       }
 
       projectile.projectile.ttl -= dt;
-      const position = projectile.body.translation();
+      const position = copyBodyTranslation(projectile.body);
       const distance = Math.sqrt(position.x ** 2 + position.y ** 2 + position.z ** 2);
 
       if (projectile.projectile.ttl <= 0 || distance > DESPAWN_DISTANCE) {

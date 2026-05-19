@@ -1,5 +1,6 @@
 import { useHudStore } from '../ui/useHudStore';
 
+import { copyBodyLinvel } from './spatial';
 import type { GameEntity } from './types';
 
 export function syncTelemetry(shipEntity: GameEntity, asteroidCount: number) {
@@ -8,7 +9,7 @@ export function syncTelemetry(shipEntity: GameEntity, asteroidCount: number) {
   }
 
   const blueprint = shipEntity.ship.blueprint;
-  const speed = shipEntity.body.linvel();
+  const speed = copyBodyLinvel(shipEntity.body);
 
   useHudStore.getState().updateTelemetry({
     shipName: blueprint.label,

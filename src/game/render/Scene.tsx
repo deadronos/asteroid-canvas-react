@@ -31,11 +31,11 @@ export default function Scene({
   return (
     <>
       <color attach="background" args={['#050a12']} />
-      <fog attach="fog" args={['#050a12', 45, 160]} />
+      <fog attach="fog" args={['#050a12', 45, 360]} />
       <ambientLight intensity={0.65} />
       <directionalLight position={[12, 18, 10]} intensity={1.5} castShadow />
       <pointLight position={[0, 0, -24]} intensity={1.1} color="#9edcff" />
-      <Stars radius={180} depth={80} count={5000} factor={4} saturation={0.2} fade speed={0.3} />
+      <Stars radius={180} depth={80} count={10000} factor={4} saturation={0.3} fade speed={0.3} />
       <ChaseCamera session={session} />
       {ships.map((entity) => (
         <ShipMesh key={entity.id} entity={entity} />

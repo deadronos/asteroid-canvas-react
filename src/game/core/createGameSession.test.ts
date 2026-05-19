@@ -44,6 +44,21 @@ describe('createGameSession', () => {
     expect(Array.from(session.queries.projectiles).length).toBeGreaterThan(0);
   });
 
+  it('can advance repeated movement inputs without hitting rapier aliasing errors', () => {
+    session = createGameSession();
+    const currentSession = session;
+
+    expect(() => {
+      for (let index = 0; index < 45; index += 1) {
+        currentSession.step(1 / 60, {
+          ...EMPTY_INPUT,
+          forward: true,
+          yawLeft: index % 2 === 0,
+        });
+      }
+    }).not.toThrow();
+  });
+
   it('routes the turret toggle through the zustand HUD store', () => {
     useHudStore.setState((state) => ({
       ...state,

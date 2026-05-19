@@ -25,6 +25,24 @@ export function toThreeQuaternion(rotation: RAPIER.Rotation) {
   return new THREE.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
 }
 
+export function copyBodyTranslation(body: RAPIER.RigidBody) {
+  const { x, y, z } = body.translation();
+
+  return new THREE.Vector3(x, y, z);
+}
+
+export function copyBodyQuaternion(body: RAPIER.RigidBody) {
+  const { x, y, z, w } = body.rotation();
+
+  return new THREE.Quaternion(x, y, z, w);
+}
+
+export function copyBodyLinvel(body: RAPIER.RigidBody) {
+  const { x, y, z } = body.linvel();
+
+  return { x, y, z };
+}
+
 export function countEntities(entities: Iterable<unknown>) {
   let count = 0;
 
@@ -36,35 +54,29 @@ export function countEntities(entities: Iterable<unknown>) {
 }
 
 export function getForward(body: RAPIER.RigidBody) {
-  return FORWARD_VECTOR.clone()
-    .applyQuaternion(toThreeQuaternion(body.rotation()))
-    .setY(0)
-    .normalize();
+  return FORWARD_VECTOR.clone().applyQuaternion(copyBodyQuaternion(body)).setY(0).normalize();
 }
 
 export function getRight(body: RAPIER.RigidBody) {
-  return RIGHT_VECTOR.clone()
-    .applyQuaternion(toThreeQuaternion(body.rotation()))
-    .setY(0)
-    .normalize();
+  return RIGHT_VECTOR.clone().applyQuaternion(copyBodyQuaternion(body)).setY(0).normalize();
 }
 
 export function projectLocalPoint(body: RAPIER.RigidBody, localPoint: [number, number, number]) {
-  const translation = body.translation();
+  const translation = copyBodyTranslation(body);
 
   return new THREE.Vector3(localPoint[0], localPoint[1], localPoint[2])
-    .applyQuaternion(toThreeQuaternion(body.rotation()))
-    .add(new THREE.Vector3(translation.x, translation.y, translation.z));
+    .applyQuaternion(copyBodyQuaternion(body))
+    .add(translation);
 }
 
 export function capHorizontalVelocity(body: RAPIER.RigidBody, maxSpeed: number) {
-  const linvel = body.linvel();
-  const horizontal = new THREE.Vector2(linvel.x, linvel.z);
+  const { x: linvelX, y: linvelY, z: linvelZ } = copyBodyLinvel(body);
+  const horizontal = new THREE.Vector2(linvelX, linvelZ);
 
   if (horizontal.lengthSq() <= maxSpeed * maxSpeed) {
     return;
   }
 
   horizontal.setLength(maxSpeed);
-  body.setLinvel(toRapierVector(horizontal.x, linvel.y, horizontal.y), true);
+  body.setLinvel(toRapierVector(horizontal.x, linvelY, horizontal.y), true);
 }

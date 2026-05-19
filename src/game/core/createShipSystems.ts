@@ -3,10 +3,10 @@ import { useHudStore } from '../ui/useHudStore';
 import { applyShipDamage } from './shipState';
 import {
   capHorizontalVelocity,
+  copyBodyTranslation,
   getForward,
   getRight,
   projectLocalPoint,
-  toThreeVector,
 } from './spatial';
 import type { EntityStore, SpawnApi } from './sessionTypes';
 import type { GameEntity, InputSnapshot } from './types';
@@ -62,7 +62,7 @@ export function createShipSystems(store: EntityStore, spawnApi: SpawnApi) {
       let bestDistance = Number.POSITIVE_INFINITY;
 
       for (const asteroid of asteroids) {
-        const asteroidPosition = toThreeVector(asteroid.body.translation());
+        const asteroidPosition = copyBodyTranslation(asteroid.body);
         const distance = mountWorld.distanceTo(asteroidPosition);
 
         if (distance > turret.range || distance >= bestDistance) {
@@ -77,7 +77,7 @@ export function createShipSystems(store: EntityStore, spawnApi: SpawnApi) {
         return;
       }
 
-      const direction = toThreeVector(bestTarget.body.translation()).sub(mountWorld).normalize();
+      const direction = copyBodyTranslation(bestTarget.body).sub(mountWorld).normalize();
 
       spawnApi.spawnProjectile(
         mountWorld,

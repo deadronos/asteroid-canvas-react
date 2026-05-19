@@ -1,5 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useState } from 'react';
+import * as THREE from 'three';
 
 import { createGameSession } from './core/createGameSession';
 import { ensureRapierReady } from './core/rapier';
@@ -62,7 +63,11 @@ export default function Game() {
 
   return (
     <div className="game-shell">
-      <Canvas className="space-canvas" camera={{ position: [0, 4.8, 13.5], fov: 52 }} shadows>
+      <Canvas
+        className="space-canvas"
+        camera={{ position: [0, 4.8, 13.5], fov: 52 }}
+        shadows={{ type: THREE.PCFShadowMap }}
+      >
         <Scene session={session} inputRef={inputRef} />
       </Canvas>
       <Hud />

@@ -1,4 +1,8 @@
-import { randomBetween, toRapierVector, toThreeVector } from './spatial';
+import {
+  copyBodyTranslation,
+  randomBetween,
+  toRapierVector,
+} from './spatial';
 import type { EntityStore } from './sessionTypes';
 import type { GameEntity } from './types';
 
@@ -13,10 +17,10 @@ export function createCombatSystems(
     const destroyedAsteroids = new Set<GameEntity>();
 
     for (const projectile of projectiles) {
-      const projectilePosition = toThreeVector(projectile.body.translation());
+      const projectilePosition = copyBodyTranslation(projectile.body);
 
       for (const asteroid of asteroids) {
-        const asteroidPosition = toThreeVector(asteroid.body.translation());
+        const asteroidPosition = copyBodyTranslation(asteroid.body);
         const impactDistance = projectile.radius + asteroid.radius;
 
         if (
@@ -49,10 +53,10 @@ export function createCombatSystems(
       return;
     }
 
-    const shipPosition = toThreeVector(shipEntity.body.translation());
+    const shipPosition = copyBodyTranslation(shipEntity.body);
 
     for (const asteroid of Array.from(store.queries.asteroids)) {
-      const asteroidPosition = toThreeVector(asteroid.body.translation());
+      const asteroidPosition = copyBodyTranslation(asteroid.body);
       const combinedRadius = shipEntity.radius + asteroid.radius;
 
       if (shipPosition.distanceToSquared(asteroidPosition) > combinedRadius * combinedRadius) {

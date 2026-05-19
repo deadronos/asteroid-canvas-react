@@ -1,34 +1,62 @@
+import { OrbitControls } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useRef } from 'react';
 import * as THREE from 'three';
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
+import { copyBodyTranslation } from '../core/spatial';
 import type { GameSession } from '../core/sessionTypes';
+
+const ORBIT_POINT_OFFSET = new THREE.Vector3(0, 1.35, 0);
 
 export default function ChaseCamera({ session }: { session: GameSession }) {
   const { camera } = useThree();
-  const smoothedLookAt = useRef(new THREE.Vector3());
-  const desiredCameraPosition = useRef(new THREE.Vector3());
+  const controlsRef = useRef<OrbitControlsImpl | null>(null);
+  const desiredTarget = useRef(new THREE.Vector3());
+  const targetDelta = useRef(new THREE.Vector3());
+  const initialized = useRef(false);
 
   useFrame((_, delta) => {
     const ship = session.getPlayerShip();
+    const controls = controlsRef.current;
 
-    if (!ship) {
+    if (!ship || !controls || !ship.body.isValid()) {
       return;
     }
 
-    const translation = ship.body.translation();
-    const rotation = ship.body.rotation();
-    const shipPosition = new THREE.Vector3(translation.x, translation.y, translation.z);
-    const shipQuaternion = new THREE.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
-    const followOffset = new THREE.Vector3(0, 4.8, 13.5).applyQuaternion(shipQuaternion);
-    const lookOffset = new THREE.Vector3(0, 1.35, -12).applyQuaternion(shipQuaternion);
-    const damping = 1 - Math.exp(-delta * 4.2);
+    const followDamping = 1 - Math.exp(-delta * 6);
 
-    desiredCameraPosition.current.copy(shipPosition).add(followOffset);
-    smoothedLookAt.current.lerp(shipPosition.clone().add(lookOffset), damping);
-    camera.position.lerp(desiredCameraPosition.current, damping);
-    camera.lookAt(smoothedLookAt.current);
+    desiredTarget.current.copy(copyBodyTranslation(ship.body)).add(ORBIT_POINT_OFFSET);
+
+    if (!initialized.current) {
+      initialized.current = true;
+      controls.target.copy(desiredTarget.current);
+      camera.lookAt(desiredTarget.current);
+      controls.update();
+      return;
+    }
+
+    targetDelta.current
+      .copy(desiredTarget.current)
+      .sub(controls.target)
+      .multiplyScalar(followDamping);
+
+    camera.position.add(targetDelta.current);
+    controls.target.add(targetDelta.current);
+    controls.update();
   });
 
-  return null;
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      enableDamping
+      dampingFactor={0.12}
+      enablePan={false}
+      minDistance={6}
+      maxDistance={28}
+      maxPolarAngle={Math.PI / 2.05}
+      rotateSpeed={0.8}
+      zoomSpeed={0.9}
+    />
+  );
 }

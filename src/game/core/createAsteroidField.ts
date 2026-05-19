@@ -3,7 +3,7 @@ import {
   ASTEROID_TARGET_COUNT,
   DESPAWN_DISTANCE,
 } from './sessionConstants';
-import { countEntities, toThreeVector } from './spatial';
+import { copyBodyTranslation, countEntities } from './spatial';
 import type { EntityStore, SpawnApi } from './sessionTypes';
 import type { GameEntity } from './types';
 
@@ -11,11 +11,11 @@ export function createAsteroidField(store: EntityStore, spawnApi: SpawnApi) {
   let asteroidRespawnTimer = 0;
 
   const maintainAsteroids = (shipEntity: GameEntity, dt: number) => {
-    const shipPosition = toThreeVector(shipEntity.body.translation());
+    const shipPosition = copyBodyTranslation(shipEntity.body);
     const asteroidsToRemove: GameEntity[] = [];
 
     for (const asteroid of store.queries.asteroids) {
-      const asteroidPosition = toThreeVector(asteroid.body.translation());
+      const asteroidPosition = copyBodyTranslation(asteroid.body);
 
       if (asteroidPosition.distanceTo(shipPosition) > DESPAWN_DISTANCE) {
         asteroidsToRemove.push(asteroid);
