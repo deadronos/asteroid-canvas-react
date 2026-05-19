@@ -33,6 +33,7 @@ export default function Game() {
                 <pointLight position={[10, 10, 10]} />
                 <axesHelper args={[5]} />
                 <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade />
+                <Stars radius={200} depth={100} count={10000} factor={4} saturation={0} fade />
                 <PlayerShip />
             </Canvas>
     </div>

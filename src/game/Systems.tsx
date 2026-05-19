@@ -22,7 +22,7 @@ export default function Systems() {
         return <div>Loading...</div>;
     }
 
-    function handlePlayerInput(gameState:GameState, dt:number) {
+   /* function handlePlayerInput(gameState:GameState, dt:number) {
         const inputState = gameState.inputState;
         // Placeholder for input handling logic
         const accelerationMagnitude = 0.1; // units per second squared
@@ -48,9 +48,82 @@ export default function Systems() {
         }
 
         if (inputState.pointerLocked) {
-            gameState.togglePointerLock();
+            gameState.toggleIsPointerLocked();
         }
 
+
+
+    } */
+
+    function handlePlayerInput(gameState: GameState, dt: number) {
+        const inputState = gameState.inputState;
+        const player = gameState.player; // Assuming player has .quaternion, .acceleration, etc.
+
+        // --- 1. HANDLE ROTATION (Pitch, Yaw, Roll) ---
+        // Values from your mouse move listeners / mouse sensitivity
+        if (inputState.pointerLocked) {
+            // Pointer locked, quaternion controls are active
+        
+            const mouseSensitivity = 0.05;
+            const rollSpeed = 1.5; // Radians per second
+
+            const pitchTarget = inputState.mouseDeltaY * mouseSensitivity * dt;
+            const yawTarget = inputState.mouseDeltaX * mouseSensitivity * dt;
+            let rollTarget = 0;
+
+            if (inputState.rollLeft) rollTarget += rollSpeed * dt;  // Q key
+            if (inputState.rollRight) rollTarget -= rollSpeed * dt; // E key
+
+            // Create local rotations based on the ship's current internal axes
+            const localPitch = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitchTarget);
+            const localYaw = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yawTarget);
+            const localRoll = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), rollTarget);
+
+            // Multiply them directly into the player's current quaternion orientation
+            // Note: order matters! This rotates them relative to their CURRENT local orientation.
+            player.quaternion.multiply(localPitch);
+            player.quaternion.multiply(localYaw);
+            player.quaternion.multiply(localRoll);
+            player.quaternion.normalize(); // Prevent floating-point drift
+
+            // Reset mouse deltas so they don't loop forever
+            inputState.mouseDeltaX = 0;
+            inputState.mouseDeltaY = 0;
+        } else {
+            // Pointer not locked, no quaternion input controls
+        }
+
+        // --- 2. HANDLE TRANSLATION (Thrust) ---
+        const accelerationMagnitude = 0.1; 
+        const thrustDirection = new THREE.Vector3(0, 0, 0);
+
+        // Instead of creating 6 separate vectors, we create 1 combined local direction vector
+        if (inputState.forward)  thrustDirection.z -= 1; // In Three.js, -Z is forward
+        if (inputState.backward) thrustDirection.z += 1;
+        if (inputState.right)    thrustDirection.x += 1;
+        if (inputState.left)     thrustDirection.x -= 1;
+        if (inputState.up)       thrustDirection.y += 1;
+        if (inputState.down)     thrustDirection.y -= 1;
+
+        const transformedAcceleration = new THREE.Vector3(0, 0, 0);
+
+        if (thrustDirection.lengthSq() > 0) {
+            // Normalize the combined input direction first so diagonals aren't faster
+            thrustDirection.normalize();
+            
+            // Rotate the final thrust vector by the player's orientation quaternion
+            transformedAcceleration.copy(thrustDirection).applyQuaternion(player.quaternion);
+            transformedAcceleration.multiplyScalar(accelerationMagnitude);
+        }
+
+        // Accumulate or set acceleration
+        const newAcceleration = (player.acceleration as THREE.Vector3).clone().add(transformedAcceleration);
+        gameState.updatePlayerAcceleration(newAcceleration);
+
+
+        // --- 3. UI & SYSTEM TOGGLES ---
+        if (inputState.cameraFollowToggle) gameState.toggleCameraFollow();
+        if (inputState.pointerLocked)      gameState.toggleIsPointerLocked();
     }
 
     function handlePlayerAcceleration(gameState:GameState, dt:number) {
@@ -117,6 +190,10 @@ export default function Systems() {
             if(controls){
                 console.debug('inside camera update, applying delta to camera position. Delta:', delta);
                 const cameraControls=(controls as DREI.CameraControls);
+                if(deltaTime < 0.001) {
+                    console.debug('Delta time is very small, skipping camera update to avoid jitter. Delta time:', deltaTime);
+                    return;
+                }
                 if (cameraControls) {
                     console.debug('Camera controls found, applying delta');
                     const currentTarget = cameraControls.getTarget(new THREE.Vector3());
@@ -149,7 +226,7 @@ export default function Systems() {
 
         if (lastTimeRef.current === 0) return; // skip the first frame to avoid large dt
         if (nowTimeRef.current < lastTimeRef.current) return; // skip if time goes backwards (shouldn't happen but just in case)
-        if (deltaTime < targetFPS * 0.5) return; // skip if we're running much faster than target FPS
+        if (deltaTime < targetFPS * 0.5) return; // skip if dt is too small (less than half the target frame time) to avoid unnecessary updates
 
         handlePlayerInput(gameState.getState(), deltaTime);
         handlePlayerAcceleration(gameState.getState(), deltaTime);
@@ -157,6 +234,8 @@ export default function Systems() {
         handlePlayerPosition(gameState.getState(), deltaTime);
         handlePlayerRotation(gameState.getState(), deltaTime);
         updateCamera(gameState.getState(), state, deltaTime);
+
+        return null;
     });
 
     return null;

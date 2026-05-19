@@ -27,6 +27,12 @@ export function useKeyboardInput() {
 }
 
 export function useMouseInput() {
+    const gameState = useContext(GameContext);
+    if (!gameState) {
+        return { x: 0, y: 0 };
+    }
+    const isPointerLocked = useStore(gameState, (state) => state.player.isPointerLocked);
+
     const mouseDelta = useMemo(() => ({ x: 0, y: 0 }), []);
     const mouseMove = (e: MouseEvent) => {
         mouseDelta.x += e.movementX;
@@ -40,7 +46,7 @@ export function useMouseInput() {
             // Clean up event listener on unmount
             window.removeEventListener('mousemove', mouseMove);
         }
-    }, []);
+    }, [isPointerLocked]);
 
     return mouseDelta;
 }
@@ -77,50 +83,8 @@ export default function InputHandler(): JSX.Element | null {
 
     const keyboard = useKeyboardInput();
     const mouse = useMouseInput();
-
-    function applyInputToGameState(gameState: GameState, inputState: ReturnType<typeof getInputState>, dt: number) {
-        const accelerationMagnitude = 0.1; // units per second squared
-        const accelerationVector = new THREE.Vector3(
-            (inputState.right ? 1 : 0) - (inputState.left ? 1 : 0),
-            (inputState.up ? 1 : 0) - (inputState.down ? 1 : 0),
-            (inputState.forward ? -1 : 0) - (inputState.backward ? -1 : 0)
-        ).normalize().multiplyScalar(accelerationMagnitude);
-        const currentAcceleration = gameState.player.acceleration as THREE.Vector3;
-        const newAcceleration = 
-            currentAcceleration.add(accelerationVector).
-            applyEuler(new THREE.Euler(gameState.player.pitch, gameState.player.yaw, gameState.player.roll));
-
-        if ((accelerationVector.length()===0) && currentAcceleration.length()>0) {
-            // If no input is given but there is current acceleration, we should apply damping to slow down the player
-            const dampingFactor = 0.9; // Adjust this value for more or less damping
-            const newAcceleration = currentAcceleration.multiplyScalar(dampingFactor);
-            gameState.updatePlayerAcceleration(newAcceleration);
-        } else {
-            if (debug) console.debug('ongoing input, no damping applied, new acceleration:', newAcceleration);
-        }
-
-        const dtSeconds = dt / 1000;
-        const rollSpeed = 1; // radians per second
-        const currentRoll = gameState.player.roll;
-        const rawRoll = 
-            currentRoll + ((inputState.rollLeft ? rollSpeed : 0) - (inputState.rollRight ? rollSpeed : 0)) * dtSeconds;
-        // Normalize to [-π, π] for clean degree display
-        let newRoll = rawRoll % (2 * Math.PI);
-        if (newRoll > Math.PI) newRoll -= 2 * Math.PI;
-        if (newRoll <= -Math.PI) newRoll += 2 * Math.PI;
-        
-        gameState.updatePlayerRotation(gameState.player.pitch, newRoll, gameState.player.yaw);    
-        
-        if (!inputState.forward && !inputState.backward && !inputState.left && !inputState.right && !inputState.up && !inputState.down && !inputState.rollLeft && !inputState.rollRight) {
-            // No input, player is idle
-            gameState.setPlayer({ ...gameState.player, isIdle: true });
-        } else {
-            // Player is giving input, not idle
-            gameState.setPlayer({ ...gameState.player, isIdle: false });
-        }
-        gameState.updatePlayerAcceleration(newAcceleration);
-    };
-
+    const isPointerLocked = useStore(gameState, (state) => state.player.isPointerLocked);
+    
     useFrame((state,dt)=> {
         if(!lastTimeRef.current) {
             lastTimeRef.current = state.clock.getElapsedTime()*1000;

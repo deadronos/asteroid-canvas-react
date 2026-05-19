@@ -3,6 +3,7 @@ import { GameContext } from "../App";
 import { useStore } from "zustand";
 import * as THREE from 'three';
 import { Vec3 } from "./types";
+import { Quaternion } from "three";
 
 
 
@@ -20,13 +21,9 @@ export default function HUD() {
     const position:THREE.Vector3 = useStore(gameState, (state) => state.player.position)as THREE.Vector3;
     const velocity:THREE.Vector3 = useStore(gameState, (state) => state.player.velocity)as THREE.Vector3;
     const acceleration:THREE.Vector3 = useStore(gameState, (state) => state.player.acceleration)as THREE.Vector3;
-    const pitch = useStore(gameState, (state) => state.player.pitch);
-    const roll = useStore(gameState, (state) => state.player.roll);
-    const yaw = useStore(gameState, (state) => state.player.yaw);
+    const quaternion:THREE.Quaternion = useStore(gameState, (state) => state.player.quaternion)as THREE.Quaternion;
     
-    function RadiansToDegrees(radians: number): number {
-        return radians * (180 / Math.PI);
-    }
+
     
     return (
         <>
@@ -39,9 +36,7 @@ export default function HUD() {
             <p>Position: {`(${position.x.toFixed(2)}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)})`}</p>
             <p>Velocity: {`(${velocity.x.toFixed(2)}, ${velocity.y.toFixed(2)}, ${velocity.z.toFixed(2)})`}</p>
             <p>Acceleration: {`(${acceleration.x.toFixed(2)}, ${acceleration.y.toFixed(2)}, ${acceleration.z.toFixed(2)})`}</p>
-            <p>Pitch: {RadiansToDegrees(pitch).toFixed(2)}</p>
-            <p>Roll: {RadiansToDegrees(roll).toFixed(2)}</p>
-            <p>Yaw: {RadiansToDegrees(yaw).toFixed(2)}</p>
+            <p>Quaternion: {`(${quaternion.x.toFixed(2)}, ${quaternion.y.toFixed(2)}, ${quaternion.z.toFixed(2)}, ${quaternion.w.toFixed(2)})`}</p>
         </div>
         </>
     );
