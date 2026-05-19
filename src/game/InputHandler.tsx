@@ -146,10 +146,10 @@ export default function InputHandler(): JSX.Element | null {
             shouldProcessFrameRef.current = false;            
             lastTimeRef.current = nowTimeRef.current;
             const inputState = getInputState(keyboard, mouse);
-            console.debug('Input State:', inputState);
+            if (debug)console.debug('Input State:', inputState);
             gameState.getState().setInputState(inputState as InputState);
         }
-        console.debug(`Frame time: ${deltaTime.toFixed(4)}ms`);
+        if (debug)console.debug(`Frame time: ${deltaTime.toFixed(4)}ms`);
         return;
     })
 

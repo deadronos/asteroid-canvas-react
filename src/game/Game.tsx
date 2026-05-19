@@ -1,6 +1,6 @@
 import { Canvas, ReactThreeFiber } from '@react-three/fiber';
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { OrbitControls, Stars } from '@react-three/drei';
+import React, { Suspense, useContext,  useEffect,  useRef} from 'react';
+import { CameraControls, Stars } from '@react-three/drei';
 import PlayerShip from './PlayerShip';
 import Asteroid from './Asteroid';
 import { GameContext } from '../App';
@@ -13,8 +13,9 @@ import * as THREE from 'three';
 
 export default function Game() {
   const gameState = useContext(GameContext);
-  const orbitControlsRef = React.useRef<OrbitControls>(null);
+  const controlsRef = useRef<CameraControls>(null);
 
+  
   if (!gameState) {
     return <div>Loading...</div>;
   }
@@ -25,9 +26,9 @@ export default function Game() {
         <HUD />
             <Canvas className="3d-scene" shadows={true} >            
                 {/* 3D content goes here */}
-                <OrbitControls ref={orbitControlsRef} makeDefault />
+                <CameraControls ref={controlsRef} makeDefault />
                 <InputHandler />
-                <Systems orbitControlsRef={orbitControlsRef} />
+                <Systems />
                 <ambientLight intensity={0.5} />
                 <pointLight position={[10, 10, 10]} />
                 <axesHelper args={[5]} />

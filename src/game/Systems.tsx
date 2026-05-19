@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef, useState, useEffect, useMemo } from 'react';
 import { GameContext } from '../App';
 import { useFrame, useThree } from "@react-three/fiber";
 import { GameState } from './types';
@@ -7,14 +7,16 @@ import { Camera } from 'three';
 import { useStore } from 'zustand';
 import * as DREI from '@react-three/drei';
 
-
-export default function Systems({ orbitControlsRef }: { orbitControlsRef: React.RefObject<typeof DREI.OrbitControls> }) {
+export default function Systems() {
     const [debug, setDebug] = useState(false);
     const gameState = useContext(GameContext);
     const lastTimeRef = useRef(0);
     const nowTimeRef = useRef(0);
-    const camera = useThree().camera;
-    const controls = useRef(orbitControlsRef.current);
+    const { camera, controls } = useThree();
+    const [updateCameraFlag, setUpdateCameraFlag] = useState(false);
+    const [delta, setDelta] = useState(new THREE.Vector3(0, 0, 0));
+    const [prevPlayerPosition, setPrevPlayerPosition] = useState(new THREE.Vector3(0, 0, 0));
+    const [deltaTime, setDeltaTime] = useState(0);
 
     if (!gameState) {
         return <div>Loading...</div>;
@@ -38,7 +40,7 @@ export default function Systems({ orbitControlsRef }: { orbitControlsRef: React.
         if (inputState.up) transformedAcceleration.add(currentUpVector);
         if (inputState.down) transformedAcceleration.add(currentDownVector);
         transformedAcceleration.normalize().multiplyScalar(accelerationMagnitude);
-        const newAcceleration = (gameState.player.acceleration as THREE.Vector3).add(transformedAcceleration);
+        const newAcceleration = (gameState.player.acceleration as THREE.Vector3).clone().add(transformedAcceleration);
         gameState.updatePlayerAcceleration(newAcceleration);
 
         if (inputState.cameraFollowToggle) {
@@ -58,14 +60,14 @@ export default function Systems({ orbitControlsRef }: { orbitControlsRef: React.
     function handlePlayerVelocity(gameState:GameState, dt:number) {
         const currentVelocity = gameState.player.velocity as THREE.Vector3;
         const currentAcceleration = gameState.player.acceleration as THREE.Vector3;
-        const newVelocity = currentVelocity.add(currentAcceleration.clone().multiplyScalar(dt));
+        const newVelocity = currentVelocity.clone().add(currentAcceleration.clone().multiplyScalar(dt));
         gameState.updatePlayerVelocity(newVelocity);
     }
 
     function handlePlayerPosition(gameState:GameState, dt:number) {
         const currentPosition = gameState.player.position as THREE.Vector3;
         const currentVelocity = gameState.player.velocity as THREE.Vector3;
-        const newPosition = currentPosition.add(currentVelocity.clone().multiplyScalar(dt));
+        const newPosition = currentPosition.clone().add(currentVelocity.clone().multiplyScalar(dt));
         gameState.updatePlayerPosition(newPosition);
     }
 
@@ -74,50 +76,87 @@ export default function Systems({ orbitControlsRef }: { orbitControlsRef: React.
 
     }
 
-    function updateCamera(gameState:GameState, camera?:Camera) {
+    function updateCamera(gameState:GameState, state:RootState, dt:number) {
         // Placeholder for camera update logic based on player position and isCameraFollow state
         const cameraFollow = gameState.player.isCameraFollow;
         const playerPosition = gameState.player.position as THREE.Vector3;
-        const prevPlayerPosition = (gameState.player.position as THREE.Vector3).clone();
-       
+        
+        
+
         
         if (cameraFollow) {
-            if (!camera) {
-                console.warn('Camera is not available for follow logic');
-                return null;
+            playerPosition.copy(gameState.player.position as THREE.Vector3);
+            if (prevPlayerPosition.length() === 0) {
+                setPrevPlayerPosition(playerPosition.clone());
+            } else {
+                /* if(prevPlayerPosition.equals(playerPosition)){
+                    console.debug('Player position has not changed since last frame, skipping camera update. Player position:', playerPosition);
+                    return;
+                }else{
+                    if(prevPlayerPosition.clone().sub(playerPosition).length() < 1){
+                        console.debug('Player position change is very small, skipping camera update. Player position:', playerPosition);
+                        return;
+                    }
+                } */
+
+                console.debug('Camera follow is enabled. Scheduling camera update. Current player position:', playerPosition);
+                const newDelta = playerPosition.clone().sub(prevPlayerPosition);
+                setDelta(newDelta);
+                setDeltaTime(dt);
+                setUpdateCameraFlag(true);
             }
-            // Implement camera follow logic here, e.g. update camera position to match player position with some offset
-            const prevPlayerPosition = (gameState.player.position as THREE.Vector3).clone();
-            const delta=playerPosition.clone().sub(prevPlayerPosition);
-            const newCameraPosition = camera.position.clone().add(delta);
-            
-            orbitControlsRef.current.target.add(delta); // Move the target of the orbit controls by the same delta to keep it centered on the player
-            orbitControlsRef.current.
-            camera.position.lerp(newCameraPosition, 0.1); // Smoothly interpolate to the desired position
-            
-            console.debug('Camera follow is enabled. Updating camera position to:', camera.position);
         } else {
             console.debug('Camera follow is disabled. Current player position:', playerPosition);
         }
         return null;
     }
 
+    useEffect(()=>{
+        if (updateCameraFlag) {
+            console.debug('Consuming scheduled camera update');
+            if(controls){
+                console.debug('inside camera update, applying delta to camera position. Delta:', delta);
+                const cameraControls=(controls as DREI.CameraControls);
+                if (cameraControls) {
+                    console.debug('Camera controls found, applying delta');
+                    const currentTarget = cameraControls.getTarget(new THREE.Vector3());
+                    const newTarget = currentTarget.add(delta);
+                    const currentCameraPosition = cameraControls.getPosition(new THREE.Vector3());
+                    const newCameraPosition = currentCameraPosition.add(delta);
+                    cameraControls.setLookAt(newCameraPosition.x, newCameraPosition.y, newCameraPosition.z, newTarget.x, newTarget.y, newTarget.z);
+                    
+                }else{
+                    console.debug('Camera controls not found, cannot apply delta');
+                    
+                }
+                setPrevPlayerPosition((gameState.getState().player.position as THREE.Vector3).clone());
+                console.debug('updated Prev Player Position to:', gameState.getState().player.position);
+            }
+            setUpdateCameraFlag(false);
+        } else {
+            if (debug) console.debug('No camera update scheduled');
+        }
+        return () =>{
+            console.debug('Cleaning up Systems useEffect');
+        }
+    }, [updateCameraFlag, delta, controls, gameState]);
+
     useFrame((state,dt) => {
         lastTimeRef.current = nowTimeRef.current;
         nowTimeRef.current = state.clock.getElapsedTime();
         const deltaTime = nowTimeRef.current - lastTimeRef.current;
-        const targetFPS=1/60/1000;
+        const targetFPS = 1/60; // target 60 FPS = ~0.0167 seconds
 
         if (lastTimeRef.current === 0) return; // skip the first frame to avoid large dt
         if (nowTimeRef.current < lastTimeRef.current) return; // skip if time goes backwards (shouldn't happen but just in case)
-        if (deltaTime < targetFPS) return; // skip if we're running faster than the target FPS
+        if (deltaTime < targetFPS * 0.5) return; // skip if we're running much faster than target FPS
 
         handlePlayerInput(gameState.getState(), deltaTime);
         handlePlayerAcceleration(gameState.getState(), deltaTime);
         handlePlayerVelocity(gameState.getState(), deltaTime);
         handlePlayerPosition(gameState.getState(), deltaTime);
         handlePlayerRotation(gameState.getState(), deltaTime);
-        updateCamera(gameState.getState(), camera);
+        updateCamera(gameState.getState(), state, deltaTime);
     });
 
     return null;
