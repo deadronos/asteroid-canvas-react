@@ -1,3 +1,4 @@
+import { useHudStore } from '../ui/useHudStore';
 import { toRapierVector } from './spatial';
 import type { GameEntity, ShipRuntimeState } from './types';
 
@@ -12,6 +13,11 @@ export function resetShipState(ship: ShipRuntimeState) {
 
 export function applyShipDamage(shipEntity: GameEntity, damage: number) {
   if (!shipEntity.ship) {
+    return;
+  }
+
+  const gameState = useHudStore.getState().gameState;
+  if (gameState !== 'playing') {
     return;
   }
 
@@ -37,6 +43,7 @@ export function applyShipDamage(shipEntity: GameEntity, damage: number) {
   shipEntity.ship.shieldDelay = shipEntity.ship.blueprint.shield.rechargeDelay;
 
   if (shipEntity.ship.hull <= 0) {
+    useHudStore.getState().setGameState('gameover');
     resetShipState(shipEntity.ship);
     shipEntity.body.setTranslation(toRapierVector(0, 0, 0), true);
     shipEntity.body.setLinvel(toRapierVector(0, 0, 0), true);

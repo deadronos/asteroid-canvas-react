@@ -99,11 +99,14 @@ export function createShipSystems(store: EntityStore, spawnApi: SpawnApi) {
       return;
     }
 
+    const gameState = useHudStore.getState().gameState;
+    const isPlaying = gameState === 'playing';
+
     const forward = getForward(shipEntity.body);
     const right = getRight(shipEntity.body);
-    const thrustInput = Number(input.forward) - Number(input.backward);
-    const strafeInput = Number(input.strafeRight) - Number(input.strafeLeft);
-    const yawInput = Number(input.yawLeft) - Number(input.yawRight);
+    const thrustInput = isPlaying ? Number(input.forward) - Number(input.backward) : 0;
+    const strafeInput = isPlaying ? Number(input.strafeRight) - Number(input.strafeLeft) : 0;
+    const yawInput = isPlaying ? Number(input.yawLeft) - Number(input.yawRight) : 0;
     const blueprint = shipEntity.ship.blueprint;
     const thrustForce =
       thrustInput >= 0 ? blueprint.engines.mainThrust : blueprint.engines.reverseThrust;
@@ -135,7 +138,7 @@ export function createShipSystems(store: EntityStore, spawnApi: SpawnApi) {
       );
     }
 
-    if (input.fire && shipEntity.ship.manualCooldown === 0) {
+    if (isPlaying && input.fire && shipEntity.ship.manualCooldown === 0) {
       fireManualWeapons(shipEntity);
     }
 

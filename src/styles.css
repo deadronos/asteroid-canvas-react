@@ -10,7 +10,7 @@ body {
   overflow: hidden;
   background: radial-gradient(circle at top, #15273b 0%, #08111c 35%, #02060d 100%);
   color: #f3f6fb;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 * {
@@ -297,5 +297,385 @@ select {
 
   .hud-panel {
     width: 100%;
+  }
+}
+
+/* Custom typography headers */
+h1,
+h2,
+h3,
+.hud-title h1,
+.hud-panel h2 {
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* Menu & GameOver Overlays */
+.menu-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: rgba(2, 6, 13, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10;
+  animation: fadeIn 300ms ease-out;
+}
+
+.menu-card {
+  width: min(640px, 100%);
+  padding: 36px;
+  border: 1px solid rgba(130, 181, 242, 0.22);
+  border-radius: 24px;
+  background: rgba(4, 12, 22, 0.82);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(76, 121, 193, 0.1) inset;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  animation: scaleIn 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.menu-header {
+  text-align: center;
+}
+
+.menu-title {
+  margin: 0;
+  font-size: 2.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #e3f2ff 0%, #7dbdff 60%, #3ca0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 15px rgba(125, 189, 255, 0.3));
+}
+
+.menu-subtitle {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #7fa8d4;
+  opacity: 0.85;
+}
+
+.menu-columns {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+
+.menu-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.menu-section h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #a7b7cd;
+  border-bottom: 1px solid rgba(130, 181, 242, 0.15);
+  padding-bottom: 6px;
+}
+
+.specs-list,
+.controls-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.spec-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.spec-label {
+  color: rgba(222, 231, 244, 0.6);
+}
+
+.spec-value {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.text-blue {
+  color: #56d7ff;
+}
+
+.control-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.88rem;
+  color: rgba(222, 231, 244, 0.85);
+}
+
+.control-item kbd {
+  display: inline-block;
+  padding: 3px 6px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  min-width: 24px;
+  text-align: center;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+.menu-highscore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(86, 215, 255, 0.06);
+  border: 1px solid rgba(86, 215, 255, 0.15);
+}
+
+.highscore-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #7ddcff;
+}
+
+.highscore-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.15rem;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(86, 215, 255, 0.4);
+}
+
+.menu-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.menu-start-button {
+  width: 100%;
+  max-width: 280px;
+  padding: 14px 28px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border: 1px solid rgba(130, 181, 242, 0.4);
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow:
+    0 8px 20px rgba(0, 123, 255, 0.25),
+    0 0 12px rgba(130, 181, 242, 0.2);
+  transition: all 200ms ease;
+}
+
+.menu-start-button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #1e90ff 0%, #007bff 100%);
+  border-color: rgba(130, 181, 242, 0.6);
+  box-shadow:
+    0 12px 24px rgba(0, 123, 255, 0.4),
+    0 0 16px rgba(130, 181, 242, 0.4);
+}
+
+.menu-start-button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.25);
+}
+
+.menu-button-secondary {
+  width: 100%;
+  max-width: 280px;
+  padding: 14px 28px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a7b7cd;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.menu-button-secondary:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.menu-button-secondary:active {
+  transform: translateY(0);
+}
+
+/* Game Over Styling */
+.gameover-card {
+  max-width: 480px;
+  border-color: rgba(249, 115, 115, 0.25);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(249, 115, 115, 0.08) inset;
+}
+
+.gameover-title {
+  margin: 0;
+  font-size: 2.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #ffd3d3 0%, #ff8282 60%, #f97373 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 15px rgba(249, 115, 115, 0.3));
+}
+
+.gameover-subtitle {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(249, 115, 115, 0.75);
+}
+
+.gameover-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(222, 231, 244, 0.5);
+}
+
+.stat-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.6rem;
+  color: #ffffff;
+}
+
+.new-highscore-badge {
+  text-align: center;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px dashed rgba(255, 215, 0, 0.3);
+  color: #ffd700;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  animation: pulse 1.5s infinite alternate;
+}
+
+.gameover-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.gameover-button {
+  width: 100%;
+}
+
+.menu-start-button.gameover-button {
+  background: linear-gradient(135deg, #f97373 0%, #d32f2f 100%);
+  border-color: rgba(249, 115, 115, 0.3);
+  box-shadow:
+    0 8px 20px rgba(249, 115, 115, 0.2),
+    0 0 12px rgba(249, 115, 115, 0.15);
+}
+
+.menu-start-button.gameover-button:hover {
+  background: linear-gradient(135deg, #ff8282 0%, #f97373 100%);
+  border-color: rgba(249, 115, 115, 0.5);
+  box-shadow:
+    0 12px 24px rgba(249, 115, 115, 0.3),
+    0 0 16px rgba(249, 115, 115, 0.3);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  to {
+    transform: scale(1.02);
+    filter: brightness(1.2);
+  }
+}
+
+/* Responsive Overrides */
+@media (max-width: 600px) {
+  .menu-columns {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .menu-card {
+    padding: 24px;
+    gap: 20px;
+  }
+  .menu-title {
+    font-size: 2rem;
   }
 }

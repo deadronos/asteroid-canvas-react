@@ -1,3 +1,4 @@
+import { useHudStore } from '../ui/useHudStore';
 import {
   copyBodyTranslation,
   randomBetween,
@@ -38,6 +39,12 @@ export function createCombatSystems(
 
         if (asteroid.asteroid && asteroid.asteroid.hitPoints <= 0) {
           destroyedAsteroids.add(asteroid);
+          if (
+            projectile.projectile?.owner === 'player' ||
+            projectile.projectile?.owner === 'turret'
+          ) {
+            useHudStore.getState().incrementAsteroidsDestroyed();
+          }
         }
 
         break;

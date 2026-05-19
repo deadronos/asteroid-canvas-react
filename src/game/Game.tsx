@@ -4,16 +4,21 @@ import * as THREE from 'three';
 
 import { createGameSession } from './core/createGameSession';
 import { ensureRapierReady } from './core/rapier';
+import { resetShipState } from './core/shipState';
 import type { GameSession } from './core/sessionTypes';
 import { useGameInput } from './hooks/useGameInput';
 import Scene from './render/Scene';
 import BootCard from './ui/BootCard';
 import Hud from './ui/Hud';
+import StartMenu from './ui/StartMenu';
+import GameOver from './ui/GameOver';
+import { useHudStore } from './ui/useHudStore';
 
 export default function Game() {
   const [session, setSession] = useState<GameSession | null>(null);
   const [bootError, setBootError] = useState<string | null>(null);
   const inputRef = useGameInput();
+  const gameState = useHudStore((state) => state.gameState);
 
   useEffect(() => {
     let active = true;
@@ -41,6 +46,28 @@ export default function Game() {
       nextSession?.dispose();
     };
   }, []);
+
+  const resetShip = () => {
+    if (session) {
+      const ship = session.getPlayerShip();
+      if (ship && ship.ship) {
+        resetShipState(ship.ship);
+        ship.body.setTranslation({ x: 0, y: 0, z: 0 }, true);
+        ship.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+        ship.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      }
+    }
+  };
+
+  const handleStartGame = () => {
+    resetShip();
+    useHudStore.getState().setGameState('playing');
+  };
+
+  const handleReturnToMenu = () => {
+    resetShip();
+    useHudStore.getState().setGameState('menu');
+  };
 
   if (bootError) {
     return (
@@ -70,7 +97,11 @@ export default function Game() {
       >
         <Scene session={session} inputRef={inputRef} />
       </Canvas>
-      <Hud />
+      {gameState === 'menu' && <StartMenu onStart={handleStartGame} />}
+      {gameState === 'playing' && <Hud />}
+      {gameState === 'gameover' && (
+        <GameOver onRestart={handleStartGame} onReturnToMenu={handleReturnToMenu} />
+      )}
     </div>
   );
 }
