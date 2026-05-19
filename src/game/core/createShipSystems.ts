@@ -1,7 +1,13 @@
 import { useHudStore } from '../ui/useHudStore';
 
 import { applyShipDamage } from './shipState';
-import { capHorizontalVelocity, getForward, getRight, projectLocalPoint, toThreeVector } from './spatial';
+import {
+  capHorizontalVelocity,
+  getForward,
+  getRight,
+  projectLocalPoint,
+  toThreeVector,
+} from './spatial';
 import type { EntityStore, SpawnApi } from './sessionTypes';
 import type { GameEntity, InputSnapshot } from './types';
 
@@ -18,7 +24,11 @@ export function createShipSystems(store: EntityStore, spawnApi: SpawnApi) {
     }
 
     const forward = getForward(shipEntity.body);
-    const muzzle = projectLocalPoint(shipEntity.body, [0, 0.1, -shipEntity.ship.blueprint.hull.dimensions[2] * 0.72]);
+    const muzzle = projectLocalPoint(shipEntity.body, [
+      0,
+      0.1,
+      -shipEntity.ship.blueprint.hull.dimensions[2] * 0.72,
+    ]);
 
     spawnApi.spawnProjectile(
       muzzle,
@@ -69,7 +79,14 @@ export function createShipSystems(store: EntityStore, spawnApi: SpawnApi) {
 
       const direction = toThreeVector(bestTarget.body.translation()).sub(mountWorld).normalize();
 
-      spawnApi.spawnProjectile(mountWorld, direction, turret.projectileSpeed, turret.damage, 'turret', turret.color);
+      spawnApi.spawnProjectile(
+        mountWorld,
+        direction,
+        turret.projectileSpeed,
+        turret.damage,
+        'turret',
+        turret.color,
+      );
 
       if (shipEntity.ship) {
         shipEntity.ship.turretCooldowns[index] = turret.cooldown;
@@ -88,7 +105,8 @@ export function createShipSystems(store: EntityStore, spawnApi: SpawnApi) {
     const strafeInput = Number(input.strafeRight) - Number(input.strafeLeft);
     const yawInput = Number(input.yawLeft) - Number(input.yawRight);
     const blueprint = shipEntity.ship.blueprint;
-    const thrustForce = thrustInput >= 0 ? blueprint.engines.mainThrust : blueprint.engines.reverseThrust;
+    const thrustForce =
+      thrustInput >= 0 ? blueprint.engines.mainThrust : blueprint.engines.reverseThrust;
 
     if (thrustInput !== 0) {
       const thrustVector = forward.multiplyScalar(thrustForce * thrustInput * dt);
@@ -104,7 +122,9 @@ export function createShipSystems(store: EntityStore, spawnApi: SpawnApi) {
     capHorizontalVelocity(shipEntity.body, blueprint.engines.maxSpeed);
 
     shipEntity.ship.manualCooldown = Math.max(0, shipEntity.ship.manualCooldown - dt);
-    shipEntity.ship.turretCooldowns = shipEntity.ship.turretCooldowns.map((cooldown) => Math.max(0, cooldown - dt));
+    shipEntity.ship.turretCooldowns = shipEntity.ship.turretCooldowns.map((cooldown) =>
+      Math.max(0, cooldown - dt),
+    );
     shipEntity.ship.shieldDelay = Math.max(0, shipEntity.ship.shieldDelay - dt);
     shipEntity.ship.autoTurrets = useHudStore.getState().autoTurretsEnabled;
 

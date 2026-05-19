@@ -19,7 +19,12 @@ export default function AsteroidMesh({ entity }: { entity: GameEntity }) {
   return (
     <mesh ref={meshRef} castShadow receiveShadow>
       <icosahedronGeometry args={[entity.asteroid.size, 1]} />
-      <meshStandardMaterial color={entity.renderColor} roughness={0.95} metalness={0.04} flatShading />
+      <meshStandardMaterial
+        color={entity.renderColor}
+        roughness={0.95}
+        metalness={0.04}
+        flatShading
+      />
     </mesh>
   );
 }

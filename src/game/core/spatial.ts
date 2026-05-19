@@ -36,11 +36,17 @@ export function countEntities(entities: Iterable<unknown>) {
 }
 
 export function getForward(body: RAPIER.RigidBody) {
-  return FORWARD_VECTOR.clone().applyQuaternion(toThreeQuaternion(body.rotation())).setY(0).normalize();
+  return FORWARD_VECTOR.clone()
+    .applyQuaternion(toThreeQuaternion(body.rotation()))
+    .setY(0)
+    .normalize();
 }
 
 export function getRight(body: RAPIER.RigidBody) {
-  return RIGHT_VECTOR.clone().applyQuaternion(toThreeQuaternion(body.rotation())).setY(0).normalize();
+  return RIGHT_VECTOR.clone()
+    .applyQuaternion(toThreeQuaternion(body.rotation()))
+    .setY(0)
+    .normalize();
 }
 
 export function projectLocalPoint(body: RAPIER.RigidBody, localPoint: [number, number, number]) {

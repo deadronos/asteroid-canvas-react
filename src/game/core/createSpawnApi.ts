@@ -64,7 +64,13 @@ export function createSpawnApi(store: EntityStore): SpawnApi {
       .sub(translation)
       .normalize()
       .multiplyScalar(randomBetween(4.8, 9.4))
-      .add(new THREE.Vector3(randomBetween(-0.8, 0.8), randomBetween(-0.2, 0.2), randomBetween(-0.8, 0.8)));
+      .add(
+        new THREE.Vector3(
+          randomBetween(-0.8, 0.8),
+          randomBetween(-0.2, 0.2),
+          randomBetween(-0.8, 0.8),
+        ),
+      );
     const body = physics.createRigidBody(
       RAPIER.RigidBodyDesc.dynamic()
         .setTranslation(translation.x, translation.y, translation.z)
@@ -101,11 +107,16 @@ export function createSpawnApi(store: EntityStore): SpawnApi {
     color: string,
   ) => {
     const body = physics.createRigidBody(
-      RAPIER.RigidBodyDesc.dynamic().setTranslation(origin.x, origin.y, origin.z).setLinearDamping(0),
+      RAPIER.RigidBodyDesc.dynamic()
+        .setTranslation(origin.x, origin.y, origin.z)
+        .setLinearDamping(0),
     );
 
     physics.createCollider(RAPIER.ColliderDesc.ball(0.16).setSensor(true), body);
-    body.setLinvel(toRapierVector(direction.x * speed, direction.y * speed, direction.z * speed), true);
+    body.setLinvel(
+      toRapierVector(direction.x * speed, direction.y * speed, direction.z * speed),
+      true,
+    );
 
     return addEntity({
       id: makeId('projectile'),

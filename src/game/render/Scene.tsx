@@ -1,6 +1,5 @@
 import { Stars } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useMemo } from 'react';
 import type { MutableRefObject } from 'react';
 
 import type { GameSession } from '../core/sessionTypes';
@@ -18,22 +17,16 @@ export default function Scene({
   session: GameSession;
   inputRef: MutableRefObject<InputSnapshot>;
 }) {
-  const structureRevision = useSessionStructure(session);
+  useSessionStructure(session);
 
   useFrame((_, delta) => {
     session.step(delta, inputRef.current);
     inputRef.current.toggleAutoTurrets = false;
   });
 
-  const ships: GameEntity[] = useMemo(() => Array.from(session.queries.ships), [session, structureRevision]);
-  const asteroids: GameEntity[] = useMemo(
-    () => Array.from(session.queries.asteroids),
-    [session, structureRevision],
-  );
-  const projectiles: GameEntity[] = useMemo(
-    () => Array.from(session.queries.projectiles),
-    [session, structureRevision],
-  );
+  const ships: GameEntity[] = Array.from(session.queries.ships);
+  const asteroids: GameEntity[] = Array.from(session.queries.asteroids);
+  const projectiles: GameEntity[] = Array.from(session.queries.projectiles);
 
   return (
     <>

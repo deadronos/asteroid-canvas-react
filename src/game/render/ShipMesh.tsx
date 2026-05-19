@@ -48,7 +48,11 @@ export default function ShipMesh({ entity }: { entity: GameEntity }) {
       </mesh>
       <mesh position={[0, 0, -length * 0.43]} rotation={[Math.PI / 2, 0, 0]} castShadow>
         <coneGeometry args={[width * 0.46, length * 0.58, 6]} />
-        <meshStandardMaterial color={blueprint.hull.accentColor} metalness={0.28} roughness={0.32} />
+        <meshStandardMaterial
+          color={blueprint.hull.accentColor}
+          metalness={0.28}
+          roughness={0.32}
+        />
       </mesh>
       <mesh position={[0, 0.18, 0.1]}>
         <boxGeometry
@@ -74,7 +78,11 @@ export default function ShipMesh({ entity }: { entity: GameEntity }) {
           </mesh>
           <mesh position={[0, 0.1, -0.38]} rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[0.05, 0.05, 0.7, 10]} />
-            <meshStandardMaterial color={turret.color} emissive={turret.color} emissiveIntensity={0.75} />
+            <meshStandardMaterial
+              color={turret.color}
+              emissive={turret.color}
+              emissiveIntensity={0.75}
+            />
           </mesh>
         </group>
       ))}

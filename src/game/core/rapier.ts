@@ -16,7 +16,9 @@ export async function ensureRapierReady() {
 
 export function assertRapierReady() {
   if (!initialized) {
-    throw new Error('RAPIER has not been initialized. Call ensureRapierReady() before createGameSession().');
+    throw new Error(
+      'RAPIER has not been initialized. Call ensureRapierReady() before createGameSession().',
+    );
   }
 }
 

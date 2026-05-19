@@ -1,4 +1,8 @@
-import { ASTEROID_RESPAWN_DELAY, ASTEROID_TARGET_COUNT, DESPAWN_DISTANCE } from './sessionConstants';
+import {
+  ASTEROID_RESPAWN_DELAY,
+  ASTEROID_TARGET_COUNT,
+  DESPAWN_DISTANCE,
+} from './sessionConstants';
 import { countEntities, toThreeVector } from './spatial';
 import type { EntityStore, SpawnApi } from './sessionTypes';
 import type { GameEntity } from './types';

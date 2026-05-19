@@ -17,7 +17,11 @@ export default function HudBar({
           {Math.round(current)} / {Math.round(max)}
         </strong>
       </div>
-      <progress className={`hud-progress hud-progress--${tone}`} value={current} max={Math.max(max, 1)} />
+      <progress
+        className={`hud-progress hud-progress--${tone}`}
+        value={current}
+        max={Math.max(max, 1)}
+      />
     </div>
   );
 }

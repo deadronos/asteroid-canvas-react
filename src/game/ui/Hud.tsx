@@ -13,7 +13,8 @@ export default function Hud() {
           <div>
             <h1>{telemetry.shipName}</h1>
             <p className="hud-copy">
-              Data-driven starter slice: configurable hull, armor, shield, engines, thrusters, and turret mounts.
+              Data-driven starter slice: configurable hull, armor, shield, engines, thrusters, and
+              turret mounts.
             </p>
           </div>
           <span className="hud-chip" data-active={autoTurretsEnabled}>
@@ -23,7 +24,12 @@ export default function Hud() {
         <div className="hud-grid">
           <HudBar label="Hull" current={telemetry.hull} max={telemetry.maxHull} tone="hull" />
           <HudBar label="Armor" current={telemetry.armor} max={telemetry.maxArmor} tone="armor" />
-          <HudBar label="Shield" current={telemetry.shield} max={telemetry.maxShield} tone="shield" />
+          <HudBar
+            label="Shield"
+            current={telemetry.shield}
+            max={telemetry.maxShield}
+            tone="shield"
+          />
         </div>
         <div className="hud-metrics">
           <div className="hud-metric">
@@ -53,13 +59,15 @@ export default function Hud() {
           <div>
             <h2>Controls</h2>
             <p className="hud-copy">
-              Manual piloting stays with the player while turrets can be toggled into auto-target/auto-fire mode.
+              Manual piloting stays with the player while turrets can be toggled into
+              auto-target/auto-fire mode.
             </p>
           </div>
         </div>
         <div className="hud-controls">
           <span>
-            <code>W</code>/<code>S</code> or <code>Up</code>/<code>Down</code> to accelerate and brake
+            <code>W</code>/<code>S</code> or <code>Up</code>/<code>Down</code> to accelerate and
+            brake
           </span>
           <span>
             <code>A</code>/<code>D</code> to strafe around asteroid lines

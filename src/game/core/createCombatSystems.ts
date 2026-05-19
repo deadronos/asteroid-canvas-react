@@ -19,7 +19,10 @@ export function createCombatSystems(
         const asteroidPosition = toThreeVector(asteroid.body.translation());
         const impactDistance = projectile.radius + asteroid.radius;
 
-        if (projectilePosition.distanceToSquared(asteroidPosition) > impactDistance * impactDistance) {
+        if (
+          projectilePosition.distanceToSquared(asteroidPosition) >
+          impactDistance * impactDistance
+        ) {
           continue;
         }
 
@@ -58,11 +61,20 @@ export function createCombatSystems(
 
       const impactForce = (asteroid.asteroid?.size ?? 1) * 14;
       const separation = asteroidPosition.clone().sub(shipPosition).normalize();
-      const newPosition = shipPosition.clone().add(separation.multiplyScalar(shipEntity.radius + asteroid.radius + 10));
-      const retreat = shipPosition.clone().sub(newPosition).normalize().multiplyScalar(randomBetween(7, 11));
+      const newPosition = shipPosition
+        .clone()
+        .add(separation.multiplyScalar(shipEntity.radius + asteroid.radius + 10));
+      const retreat = shipPosition
+        .clone()
+        .sub(newPosition)
+        .normalize()
+        .multiplyScalar(randomBetween(7, 11));
 
       applyShipDamage(shipEntity, impactForce);
-      asteroid.body.setTranslation(toRapierVector(newPosition.x, newPosition.y, newPosition.z), true);
+      asteroid.body.setTranslation(
+        toRapierVector(newPosition.x, newPosition.y, newPosition.z),
+        true,
+      );
       asteroid.body.setLinvel(toRapierVector(retreat.x, retreat.y, retreat.z), true);
     }
   };

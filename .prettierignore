@@ -1,0 +1,7 @@
+coverage
+dist
+memories
+node_modules
+package-lock.json
+src/styles.css.d.ts
+tsconfig.tsbuildinfo
