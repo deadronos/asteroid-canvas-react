@@ -1,6 +1,6 @@
 # Asteroid Canvas React
 
-Minimal Vite + React + TypeScript scaffold for a raw HTML canvas spaceship game.
+Vite + React + TypeScript scaffold for a third-person ship prototype built around data-driven ship definitions, Miniplex entity queries, Rapier physics, and Zustand-powered HUD state.
 
 ## Run
 
@@ -9,23 +9,43 @@ npm install
 npm run dev
 ```
 
+## Current slice
+
+- One configurable starter ship: `cruiser`
+- Configurable ship systems: hull, armor, shield, turrets, engines, thrusters
+- Third-person chase camera with direct player control
+- Random asteroid spawning around the player
+- Manual forward cannon fire plus toggleable turret auto-target/auto-fire
+- Miniplex for the gameplay world, Rapier for body simulation, Zustand for HUD/UI state
+
 ## Controls
 
-- `W` / `ArrowUp`: thrust
-- `A` / `ArrowLeft`: turn left
-- `D` / `ArrowRight`: turn right
-- `Space`: shoot
+- `W` / `S` or `ArrowUp` / `ArrowDown`: accelerate and brake
+- `A` / `D`: strafe left and right
+- `Q` / `E` or `ArrowLeft` / `ArrowRight`: yaw the ship
+- `Space`: fire the forward cannon
+- `T`: toggle turret auto-target and auto-fire
 
-## Shape of the project
+## Project shape
 
 ```txt
 src/
-  App.tsx                  React shell / normal UI
+  App.tsx
   game/
-    SpaceCanvas.tsx        React wrapper around the canvas
-    sim.ts                 Game state updates
-    render.ts              Canvas drawing
-    types.ts               Shared types
+    Game.tsx                  React Three Fiber scene and HUD
+    config/
+      ships.ts                Data-driven ship blueprints
+    core/
+      createGameSession.ts    Miniplex world + Rapier systems
+      types.ts                Shared gameplay types
+    ui/
+      useHudStore.ts          Zustand HUD state
 ```
 
-The important pattern is that fast-changing game state lives in refs/plain objects, not React state. React state is only used for slow HUD updates.
+## Next scaffold steps
+
+- Split systems from `createGameSession.ts` into ship, asteroid, projectile, and combat modules
+- Add more ship blueprints and a ship selection flow
+- Move rendering from primitive meshes to reusable ship/component prefabs
+- Add score, waves, pickups, and damage feedback
+- Add integration tests around spawning, collision, and turret targeting

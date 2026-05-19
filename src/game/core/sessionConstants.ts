@@ -1,0 +1,6 @@
+export const ASTEROID_TARGET_COUNT = 12;
+export const ASTEROID_SPAWN_RADIUS_MIN = 32;
+export const ASTEROID_SPAWN_RADIUS_MAX = 74;
+export const ASTEROID_RESPAWN_DELAY = 0.4;
+export const PROJECTILE_TTL = 2.6;
+export const DESPAWN_DISTANCE = 110;
