@@ -1,9 +1,5 @@
 import { useHudStore } from '../ui/useHudStore';
-import {
-  copyBodyTranslation,
-  randomBetween,
-  toRapierVector,
-} from './spatial';
+import { copyBodyTranslation, randomBetween, toRapierVector } from './spatial';
 import type { EntityStore } from './sessionTypes';
 import type { GameEntity } from './types';
 

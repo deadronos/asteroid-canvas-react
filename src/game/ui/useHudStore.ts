@@ -50,7 +50,7 @@ export const useHudStore = create<HudStore>((set) => ({
     })),
   updateTelemetry: (telemetry) => set({ telemetry }),
   setGameState: (state) =>
-    set((store) => {
+    set(() => {
       const updates: Partial<HudStore> = { gameState: state };
       if (state === 'playing') {
         updates.asteroidsDestroyed = 0;

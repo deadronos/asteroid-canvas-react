@@ -10,7 +10,11 @@ body {
   overflow: hidden;
   background: radial-gradient(circle at top, #15273b 0%, #08111c 35%, #02060d 100%);
   color: #f3f6fb;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 * {
