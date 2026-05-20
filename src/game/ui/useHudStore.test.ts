@@ -49,7 +49,7 @@ describe('useHudStore', () => {
 
   it('transitions game state and resets score on playing state', () => {
     useHudStore.setState({ asteroidsDestroyed: 10 });
-    
+
     useHudStore.getState().setGameState('gameover');
     expect(useHudStore.getState().gameState).toBe('gameover');
     expect(useHudStore.getState().asteroidsDestroyed).toBe(10);
