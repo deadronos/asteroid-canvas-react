@@ -6,6 +6,7 @@ import { createGameSession } from './core/createGameSession';
 import { ensureRapierReady } from './core/rapier';
 import { resetShipState } from './core/shipState';
 import type { GameSession } from './core/sessionTypes';
+import { useGameEvents } from './hooks/useGameEvents';
 import { useGameInput } from './hooks/useGameInput';
 import Scene from './render/Scene';
 import BootCard from './ui/BootCard';
@@ -19,6 +20,8 @@ export default function Game() {
   const [bootError, setBootError] = useState<string | null>(null);
   const inputRef = useGameInput();
   const gameState = useHudStore((state) => state.gameState);
+
+  useGameEvents(session);
 
   useEffect(() => {
     let active = true;
@@ -61,11 +64,13 @@ export default function Game() {
 
   const handleStartGame = () => {
     resetShip();
+    session?.setConfig({ gameState: 'playing' });
     useHudStore.getState().setGameState('playing');
   };
 
   const handleReturnToMenu = () => {
     resetShip();
+    session?.setConfig({ gameState: 'menu' });
     useHudStore.getState().setGameState('menu');
   };
 

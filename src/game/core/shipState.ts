@@ -1,5 +1,6 @@
-import { useHudStore } from '../ui/useHudStore';
+import type { GameEventBus } from './events';
 import { toRapierVector } from './spatial';
+import type { SessionConfig } from './sessionTypes';
 import type { GameEntity, ShipRuntimeState } from './types';
 
 export function resetShipState(ship: ShipRuntimeState) {
@@ -11,13 +12,17 @@ export function resetShipState(ship: ShipRuntimeState) {
   ship.turretCooldowns = ship.blueprint.turrets.map(() => 0);
 }
 
-export function applyShipDamage(shipEntity: GameEntity, damage: number) {
+export function applyShipDamage(
+  shipEntity: GameEntity,
+  damage: number,
+  config: SessionConfig,
+  eventBus: GameEventBus,
+) {
   if (!shipEntity.ship) {
     return;
   }
 
-  const gameState = useHudStore.getState().gameState;
-  if (gameState !== 'playing') {
+  if (config.gameState !== 'playing') {
     return;
   }
 
@@ -42,8 +47,10 @@ export function applyShipDamage(shipEntity: GameEntity, damage: number) {
 
   shipEntity.ship.shieldDelay = shipEntity.ship.blueprint.shield.rechargeDelay;
 
+  eventBus.emit('shipDamaged', { hull: shipEntity.ship.hull });
+
   if (shipEntity.ship.hull <= 0) {
-    useHudStore.getState().setGameState('gameover');
+    eventBus.emit('gameStateChange', { state: 'gameover' });
     resetShipState(shipEntity.ship);
     shipEntity.body.setTranslation(toRapierVector(0, 0, 0), true);
     shipEntity.body.setLinvel(toRapierVector(0, 0, 0), true);

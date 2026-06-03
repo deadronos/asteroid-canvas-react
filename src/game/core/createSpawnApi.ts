@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 
-import { useHudStore } from '../ui/useHudStore';
 import { RAPIER } from './rapier';
 import {
   ASTEROID_SPAWN_RADIUS_MAX,
@@ -14,7 +13,7 @@ import type { ShipBlueprint } from './types';
 export function createSpawnApi(store: EntityStore): SpawnApi {
   const { addEntity, physics } = store;
 
-  const spawnShip = (blueprint: ShipBlueprint) => {
+  const spawnShip = (blueprint: ShipBlueprint, autoTurretsEnabled: boolean) => {
     const [width, height, length] = blueprint.hull.dimensions;
     const body = physics.createRigidBody(
       RAPIER.RigidBodyDesc.dynamic()
@@ -45,7 +44,7 @@ export function createSpawnApi(store: EntityStore): SpawnApi {
         shieldDelay: 0,
         manualCooldown: 0,
         turretCooldowns: blueprint.turrets.map(() => 0),
-        autoTurrets: useHudStore.getState().autoTurretsEnabled,
+        autoTurrets: autoTurretsEnabled,
       },
     });
   };

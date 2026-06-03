@@ -1,7 +1,6 @@
-import { useHudStore } from '../../ui/useHudStore';
 import type { GameEntity } from '../types';
 
-export function updateCooldowns(shipEntity: GameEntity, dt: number) {
+export function updateCooldowns(shipEntity: GameEntity, dt: number, autoTurretsEnabled: boolean) {
   if (!shipEntity.ship) {
     return;
   }
@@ -11,7 +10,7 @@ export function updateCooldowns(shipEntity: GameEntity, dt: number) {
     Math.max(0, cooldown - dt),
   );
   shipEntity.ship.shieldDelay = Math.max(0, shipEntity.ship.shieldDelay - dt);
-  shipEntity.ship.autoTurrets = useHudStore.getState().autoTurretsEnabled;
+  shipEntity.ship.autoTurrets = autoTurretsEnabled;
 }
 
 export function updateShipShields(shipEntity: GameEntity, dt: number) {

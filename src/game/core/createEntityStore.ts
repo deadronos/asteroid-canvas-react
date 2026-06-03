@@ -1,11 +1,12 @@
 import { World as ECSWorld } from 'miniplex';
 
+import type { GameEventBus } from './events';
 import { RAPIER } from './rapier';
 import { toRapierVector } from './spatial';
 import type { EntityStore, GameQueries } from './sessionTypes';
 import type { GameEntity } from './types';
 
-export function createEntityStore(): EntityStore {
+export function createEntityStore(eventBus: GameEventBus): EntityStore {
   const ecs = new ECSWorld<GameEntity>();
   const physics = new RAPIER.World(toRapierVector(0, 0, 0));
   const queries: GameQueries = {
@@ -55,6 +56,7 @@ export function createEntityStore(): EntityStore {
     ecs,
     physics,
     queries,
+    eventBus,
     addEntity,
     removeEntity,
     getPlayerShip,
