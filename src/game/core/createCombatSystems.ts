@@ -1,8 +1,5 @@
-import {
-  copyBodyTranslation,
-  randomBetween,
-  toRapierVector,
-} from './spatial';
+import { useHudStore } from '../ui/useHudStore';
+import { copyBodyTranslation, randomBetween, toRapierVector } from './spatial';
 import type { EntityStore } from './sessionTypes';
 import type { GameEntity } from './types';
 
@@ -38,6 +35,12 @@ export function createCombatSystems(
 
         if (asteroid.asteroid && asteroid.asteroid.hitPoints <= 0) {
           destroyedAsteroids.add(asteroid);
+          if (
+            projectile.projectile?.owner === 'player' ||
+            projectile.projectile?.owner === 'turret'
+          ) {
+            useHudStore.getState().incrementAsteroidsDestroyed();
+          }
         }
 
         break;

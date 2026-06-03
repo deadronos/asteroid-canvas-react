@@ -4,6 +4,7 @@ import { useHudStore } from '../ui/useHudStore';
 import { ensureRapierReady } from './rapier';
 import { EMPTY_INPUT } from './types';
 import { createGameSession } from './createGameSession';
+import { applyShipDamage } from './shipState';
 
 describe('createGameSession', () => {
   let session: ReturnType<typeof createGameSession> | null = null;
@@ -13,6 +14,7 @@ describe('createGameSession', () => {
 
     useHudStore.setState((state) => ({
       ...state,
+      gameState: 'playing',
       autoTurretsEnabled: true,
     }));
   });
@@ -72,5 +74,38 @@ describe('createGameSession', () => {
     });
 
     expect(useHudStore.getState().autoTurretsEnabled).toBe(true);
+  });
+
+  it('does not apply damage and ignores input fire when gameState is menu', () => {
+    useHudStore.setState((state) => ({
+      ...state,
+      gameState: 'menu',
+    }));
+    session = createGameSession();
+
+    const ship = session.getPlayerShip()!;
+    const maxHull = ship.ship!.hull;
+
+    // Try to fire manual cannon - should NOT fire because not playing
+    session.step(1 / 60, {
+      ...EMPTY_INPUT,
+      fire: true,
+    });
+    const projectiles = Array.from(session.queries.projectiles);
+    const manualProjectiles = projectiles.filter((p) => p.projectile?.owner === 'player');
+    expect(manualProjectiles).toHaveLength(0);
+
+    // Try to apply damage - should NOT apply because not playing
+    applyShipDamage(ship, 50);
+    expect(ship.ship!.hull).toBe(maxHull);
+  });
+
+  it('transitions to gameover state when hull drops to 0 or below during playing state', () => {
+    session = createGameSession();
+    const ship = session.getPlayerShip()!;
+
+    applyShipDamage(ship, 1000); // Exceeds ship max hull/shield/armor
+
+    expect(useHudStore.getState().gameState).toBe('gameover');
   });
 });

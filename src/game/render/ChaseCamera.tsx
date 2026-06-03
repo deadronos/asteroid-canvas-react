@@ -6,6 +6,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
 import { copyBodyTranslation } from '../core/spatial';
 import type { GameSession } from '../core/sessionTypes';
+import { useHudStore } from '../ui/useHudStore';
 
 const ORBIT_POINT_OFFSET = new THREE.Vector3(0, 1.35, 0);
 
@@ -15,6 +16,7 @@ export default function ChaseCamera({ session }: { session: GameSession }) {
   const desiredTarget = useRef(new THREE.Vector3());
   const targetDelta = useRef(new THREE.Vector3());
   const initialized = useRef(false);
+  const gameState = useHudStore((state) => state.gameState);
 
   useFrame((_, delta) => {
     const ship = session.getPlayerShip();
@@ -57,6 +59,8 @@ export default function ChaseCamera({ session }: { session: GameSession }) {
       maxPolarAngle={Math.PI / 2.05}
       rotateSpeed={0.8}
       zoomSpeed={0.9}
+      autoRotate={gameState !== 'playing'}
+      autoRotateSpeed={0.6}
     />
   );
 }
