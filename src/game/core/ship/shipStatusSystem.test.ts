@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ensureRapierReady } from '../rapier';
 import { createGameSession } from '../createGameSession';
 import { updateCooldowns, updateShipShields } from './shipStatusSystem';
-import { useHudStore } from '../../ui/useHudStore';
 
 describe('shipStatusSystem', () => {
   beforeEach(async () => {
@@ -16,7 +15,7 @@ describe('shipStatusSystem', () => {
     delete ship.ship;
 
     expect(() => {
-      updateCooldowns(ship, 1 / 60);
+      updateCooldowns(ship, 1 / 60, false);
     }).not.toThrow();
 
     ship.ship = originalShip;
@@ -42,7 +41,7 @@ describe('shipStatusSystem', () => {
     ship.ship!.turretCooldowns = [0.2, 0.4];
     ship.ship!.shieldDelay = 1.0;
 
-    updateCooldowns(ship, 0.1);
+    updateCooldowns(ship, 0.1, true);
 
     expect(ship.ship!.manualCooldown).toBeCloseTo(0.4);
     expect(ship.ship!.turretCooldowns[0]).toBeCloseTo(0.1);
@@ -50,16 +49,14 @@ describe('shipStatusSystem', () => {
     expect(ship.ship!.shieldDelay).toBeCloseTo(0.9);
   });
 
-  it('syncs autoTurrets property with useHudStore', () => {
+  it('syncs autoTurrets property with the provided config value', () => {
     const session = createGameSession();
     const ship = session.getPlayerShip()!;
 
-    useHudStore.setState({ autoTurretsEnabled: false });
-    updateCooldowns(ship, 0.1);
+    updateCooldowns(ship, 0.1, false);
     expect(ship.ship!.autoTurrets).toBe(false);
 
-    useHudStore.setState({ autoTurretsEnabled: true });
-    updateCooldowns(ship, 0.1);
+    updateCooldowns(ship, 0.1, true);
     expect(ship.ship!.autoTurrets).toBe(true);
   });
 
@@ -71,7 +68,7 @@ describe('shipStatusSystem', () => {
     ship.ship!.shield = maxShield - 20;
     ship.ship!.shieldDelay = 0;
 
-    updateShipShields(ship, 1.0); // 1 second recharge
+    updateShipShields(ship, 1.0);
 
     const expectedShield = maxShield - 20 + ship.ship!.blueprint.shield.rechargePerSecond;
     expect(ship.ship!.shield).toBeCloseTo(expectedShield);

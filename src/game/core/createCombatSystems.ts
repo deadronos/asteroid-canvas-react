@@ -1,4 +1,4 @@
-import { useHudStore } from '../ui/useHudStore';
+import type { GameEventBus } from './events';
 import { copyBodyTranslation, randomBetween, toRapierVector } from './spatial';
 import type { EntityStore } from './sessionTypes';
 import type { GameEntity } from './types';
@@ -6,7 +6,10 @@ import type { GameEntity } from './types';
 export function createCombatSystems(
   store: EntityStore,
   applyShipDamage: (shipEntity: GameEntity, damage: number) => void,
+  eventBus: GameEventBus,
 ) {
+  let asteroidsDestroyed = 0;
+
   const resolveProjectileHits = () => {
     const projectiles = Array.from(store.queries.projectiles);
     const asteroids = Array.from(store.queries.asteroids);
@@ -39,7 +42,8 @@ export function createCombatSystems(
             projectile.projectile?.owner === 'player' ||
             projectile.projectile?.owner === 'turret'
           ) {
-            useHudStore.getState().incrementAsteroidsDestroyed();
+            asteroidsDestroyed += 1;
+            eventBus.emit('asteroidDestroyed', { count: asteroidsDestroyed });
           }
         }
 

@@ -4,7 +4,8 @@ import type { EntityStore } from './sessionTypes';
 import type { GameEntity } from './types';
 
 export function createProjectileSystems(store: EntityStore) {
-  const updateProjectiles = (dt: number) => {
+  const updateProjectiles = (dt: number, shipEntity: GameEntity) => {
+    const shipPosition = copyBodyTranslation(shipEntity.body);
     const expiredProjectiles: GameEntity[] = [];
 
     for (const projectile of store.queries.projectiles) {
@@ -14,7 +15,7 @@ export function createProjectileSystems(store: EntityStore) {
 
       projectile.projectile.ttl -= dt;
       const position = copyBodyTranslation(projectile.body);
-      const distance = Math.sqrt(position.x ** 2 + position.y ** 2 + position.z ** 2);
+      const distance = position.distanceTo(shipPosition);
 
       if (projectile.projectile.ttl <= 0 || distance > DESPAWN_DISTANCE) {
         expiredProjectiles.push(projectile);
