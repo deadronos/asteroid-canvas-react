@@ -19,8 +19,14 @@ const getStoredHighScore = (): number => {
   if (typeof window === 'undefined') {
     return 0;
   }
-  const score = localStorage.getItem('asteroid_highscore');
-  return score ? parseInt(score, 10) : 0;
+  // `Number()` returns NaN for non-numeric strings (e.g. corrupted
+  // localStorage, a different app's value with the same key, or a
+  // future schema change). NaN poisons downstream comparisons like
+  // `highScore > 0` and `Math.max(NaN, n) === NaN`, so we explicitly
+  // fall back to 0 and rewrite the bad value the next time the score
+  // is incremented.
+  const stored = Number(localStorage.getItem('asteroid_highscore'));
+  return Number.isFinite(stored) && stored >= 0 ? stored : 0;
 };
 
 interface HudStore {

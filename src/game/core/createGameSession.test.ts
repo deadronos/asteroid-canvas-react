@@ -214,4 +214,83 @@ describe('createGameSession', () => {
 
     expect(destroyCount).toBeGreaterThan(0);
   });
+
+  // ── Bug #1: configChange event emitted on toggle ──────────────────────
+
+  it('emits configChange when keyboard T toggles autoTurretsEnabled (Bug #1)', () => {
+    session = createGameSession();
+    session.setConfig({ gameState: 'playing' });
+
+    const events: boolean[] = [];
+    session.eventBus.on('configChange', ({ autoTurretsEnabled }) => {
+      events.push(autoTurretsEnabled);
+    });
+
+    // Initial state is true. Pressing T should toggle to false.
+    session.step(1 / 60, { ...EMPTY_INPUT, toggleAutoTurrets: true });
+    expect(events).toEqual([false]);
+    expect(session.config.autoTurretsEnabled).toBe(false);
+
+    // Pressing T again should toggle back to true.
+    session.step(1 / 60, { ...EMPTY_INPUT, toggleAutoTurrets: true });
+    expect(events).toEqual([false, true]);
+    expect(session.config.autoTurretsEnabled).toBe(true);
+  });
+
+  it('emits configChange when setConfig changes autoTurretsEnabled (Bug #1)', () => {
+    session = createGameSession();
+
+    const events: boolean[] = [];
+    session.eventBus.on('configChange', ({ autoTurretsEnabled }) => {
+      events.push(autoTurretsEnabled);
+    });
+
+    session.setConfig({ autoTurretsEnabled: false });
+    expect(events).toEqual([false]);
+
+    session.setConfig({ autoTurretsEnabled: true });
+    expect(events).toEqual([false, true]);
+  });
+
+  it('does NOT emit configChange when setConfig is called with the same autoTurretsEnabled value', () => {
+    session = createGameSession();
+
+    const events: boolean[] = [];
+    session.eventBus.on('configChange', ({ autoTurretsEnabled }) => {
+      events.push(autoTurretsEnabled);
+    });
+
+    // Default is true, setting true again should NOT emit.
+    session.setConfig({ autoTurretsEnabled: true });
+    expect(events).toEqual([]);
+
+    // Toggling emits, then setting the same value again should NOT emit.
+    session.setConfig({ autoTurretsEnabled: false });
+    expect(events).toEqual([false]);
+    session.setConfig({ autoTurretsEnabled: false });
+    expect(events).toEqual([false]);
+  });
+
+  // ── Bug #2: clearTransientEntities ────────────────────────────────────
+
+  it('clearTransientEntities removes all asteroids and projectiles', () => {
+    session = createGameSession();
+    session.setConfig({ gameState: 'playing', autoTurretsEnabled: false });
+
+    // Sanity: initial asteroids exist.
+    expect(Array.from(session.queries.asteroids).length).toBeGreaterThan(0);
+
+    // Fire to create a projectile.
+    const ship = session.getPlayerShip()!;
+    ship.ship!.manualCooldown = 0;
+    session.step(1 / 60, { ...EMPTY_INPUT, fire: true });
+    expect(Array.from(session.queries.projectiles).length).toBeGreaterThan(0);
+
+    session.clearTransientEntities();
+
+    expect(Array.from(session.queries.asteroids)).toHaveLength(0);
+    expect(Array.from(session.queries.projectiles)).toHaveLength(0);
+    // The ship should still be present.
+    expect(session.getPlayerShip()).not.toBeNull();
+  });
 });

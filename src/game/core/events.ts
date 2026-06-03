@@ -10,6 +10,7 @@ export interface GameEvents {
   telemetryUpdate: TelemetrySnapshot;
   asteroidDestroyed: { count: number };
   shipDamaged: { hull: number };
+  configChange: { autoTurretsEnabled: boolean };
 }
 
 export type GameEventKey = keyof GameEvents;

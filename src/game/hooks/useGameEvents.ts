@@ -34,6 +34,12 @@ export function useGameEvents(session: GameSession | null) {
       }),
     );
 
+    unsubscribers.push(
+      eventBus.on('configChange', ({ autoTurretsEnabled }) => {
+        useHudStore.getState().setAutoTurrets(autoTurretsEnabled);
+      }),
+    );
+
     return () => {
       for (const unsub of unsubscribers) {
         unsub();
