@@ -121,6 +121,55 @@ describe('createGameSession', () => {
     expect(useHudStore.getState().gameState).toBe('gameover');
   });
 
+  it('updates session.config.gameState to "gameover" when hull drops to 0 (Bug #1)', () => {
+    session = createGameSession();
+    session.setConfig({ gameState: 'playing' });
+
+    const ship = session.getPlayerShip()!;
+    applyShipDamage(ship, 1000, session.config, session.eventBus);
+
+    // The core config is the source of truth for simulation systems.
+    // Without this sync, damage gates and weapon guards would never
+    // observe the game-over transition and the ship could keep taking
+    // damage in an infinite loop.
+    expect(session.config.gameState).toBe('gameover');
+  });
+
+  it('does not re-emit gameStateChange on subsequent damage after gameover (Bug #1)', () => {
+    session = createGameSession();
+    session.setConfig({ gameState: 'playing' });
+
+    const events: string[] = [];
+    session.eventBus.on('gameStateChange', ({ state }) => {
+      events.push(state);
+    });
+
+    const ship = session.getPlayerShip()!;
+    applyShipDamage(ship, 1000, session.config, session.eventBus);
+    expect(events).toEqual(['gameover']);
+    expect(session.config.gameState).toBe('gameover');
+
+    // After the ship is reset (hull restored to max in applyShipDamage
+    // when hull hits 0), applyShipDamage should NOT re-trigger a
+    // gameover event because gameState is no longer 'playing'.
+    applyShipDamage(ship, 1000, session.config, session.eventBus);
+    expect(events).toEqual(['gameover']);
+  });
+
+  it('setConfig propagates autoTurretsEnabled to the simulation (Bug #3)', () => {
+    session = createGameSession();
+    expect(session.config.autoTurretsEnabled).toBe(true);
+
+    session.setConfig({ autoTurretsEnabled: false });
+    expect(session.config.autoTurretsEnabled).toBe(false);
+
+    // After a step, the ship's runtime autoTurrets property should mirror
+    // the updated config (see shipStatusSystem.updateCooldowns).
+    const ship = session.getPlayerShip()!;
+    session.step(1 / 60, EMPTY_INPUT);
+    expect(ship.ship!.autoTurrets).toBe(false);
+  });
+
   it('emits telemetryUpdate events during step', () => {
     session = createGameSession();
     session.setConfig({ gameState: 'playing' });
@@ -156,10 +205,7 @@ describe('createGameSession', () => {
 
     // Move ship near the target asteroid
     const targetPos = target.body.translation();
-    ship.body.setTranslation(
-      { x: targetPos.x, y: targetPos.y, z: targetPos.z + 3 },
-      true,
-    );
+    ship.body.setTranslation({ x: targetPos.x, y: targetPos.y, z: targetPos.z + 3 }, true);
 
     // Fire many times to guarantee a hit
     for (let i = 0; i < 200; i++) {

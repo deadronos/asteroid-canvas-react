@@ -38,17 +38,19 @@ export function createCombatSystems(
 
         if (asteroid.asteroid && asteroid.asteroid.hitPoints <= 0) {
           destroyedAsteroids.add(asteroid);
-          if (
-            projectile.projectile?.owner === 'player' ||
-            projectile.projectile?.owner === 'turret'
-          ) {
-            asteroidsDestroyed += 1;
-            eventBus.emit('asteroidDestroyed', { count: asteroidsDestroyed });
-          }
         }
 
         break;
       }
+    }
+
+    // Count and emit one destruction event per unique asteroid, regardless
+    // of how many projectiles hit it in the same frame. The previous
+    // implementation incremented per-projectile, double-counting kills when
+    // multiple projectiles connected with the same asteroid.
+    for (const _asteroid of destroyedAsteroids) {
+      asteroidsDestroyed += 1;
+      eventBus.emit('asteroidDestroyed', { count: asteroidsDestroyed });
     }
 
     destroyedAsteroids.forEach((asteroid) => store.removeEntity(asteroid));
@@ -75,9 +77,12 @@ export function createCombatSystems(
       const newPosition = shipPosition
         .clone()
         .add(separation.multiplyScalar(shipEntity.radius + asteroid.radius + 10));
-      const retreat = shipPosition
+      // Push the asteroid AWAY from the ship (newPosition -> shipPosition direction).
+      // The previous code subtracted in the wrong order, sending the asteroid
+      // straight back into the ship and triggering immediate re-collision.
+      const retreat = newPosition
         .clone()
-        .sub(newPosition)
+        .sub(shipPosition)
         .normalize()
         .multiplyScalar(randomBetween(7, 11));
 

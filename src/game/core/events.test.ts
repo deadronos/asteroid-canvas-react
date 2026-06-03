@@ -22,9 +22,7 @@ describe('GameEventBus', () => {
     });
 
     expect(handler).toHaveBeenCalledOnce();
-    expect(handler).toHaveBeenCalledWith(
-      expect.objectContaining({ shipName: 'Test', speed: 10 }),
-    );
+    expect(handler).toHaveBeenCalledWith(expect.objectContaining({ shipName: 'Test', speed: 10 }));
   });
 
   it('supports multiple listeners on the same event', () => {

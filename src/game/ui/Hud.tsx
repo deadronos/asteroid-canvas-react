@@ -1,10 +1,20 @@
 import { useHudStore } from './useHudStore';
 import HudBar from './HudBar';
 
-export default function Hud() {
+export default function Hud({ onToggleAutoTurrets }: { onToggleAutoTurrets?: () => void }) {
   const telemetry = useHudStore((state) => state.telemetry);
   const autoTurretsEnabled = useHudStore((state) => state.autoTurretsEnabled);
-  const toggleAutoTurrets = useHudStore((state) => state.toggleAutoTurrets);
+
+  // Prefer the explicit session-level handler so the HUD button stays in
+  // sync with the simulation config. Fall back to the local Zustand
+  // toggler only if no handler was supplied (e.g. isolated tests).
+  const handleToggle = () => {
+    if (onToggleAutoTurrets) {
+      onToggleAutoTurrets();
+      return;
+    }
+    useHudStore.getState().toggleAutoTurrets();
+  };
 
   return (
     <div className="hud">
@@ -49,7 +59,7 @@ export default function Hud() {
             <span>Player Chase Cam</span>
           </div>
         </div>
-        <button className="hud-button" type="button" onClick={toggleAutoTurrets}>
+        <button className="hud-button" type="button" onClick={handleToggle}>
           {autoTurretsEnabled ? 'Disable Auto Turrets' : 'Enable Auto Turrets'}
         </button>
       </section>

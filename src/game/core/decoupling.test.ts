@@ -11,7 +11,11 @@ function collectSourceFiles(dir: string): string[] {
 
     if (entry.isDirectory()) {
       files.push(...collectSourceFiles(fullPath));
-    } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.d.ts') && !entry.name.endsWith('.test.ts')) {
+    } else if (
+      entry.name.endsWith('.ts') &&
+      !entry.name.endsWith('.d.ts') &&
+      !entry.name.endsWith('.test.ts')
+    ) {
       files.push(fullPath);
     }
   }
