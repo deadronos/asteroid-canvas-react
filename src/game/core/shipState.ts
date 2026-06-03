@@ -50,7 +50,15 @@ export function applyShipDamage(
   eventBus.emit('shipDamaged', { hull: shipEntity.ship.hull });
 
   if (shipEntity.ship.hull <= 0) {
-    eventBus.emit('gameStateChange', { state: 'gameover' });
+    // Sync the core config so the rest of the simulation (damage gates,
+    // weapon guards, etc.) sees the game-over state. The event below
+    // reaches the UI layer, but `config` is the source of truth for the
+    // core and must be updated here to avoid an infinite
+    // gameover -> reset -> gameover loop.
+    if (config.gameState === 'playing') {
+      config.gameState = 'gameover';
+      eventBus.emit('gameStateChange', { state: 'gameover' });
+    }
     resetShipState(shipEntity.ship);
     shipEntity.body.setTranslation(toRapierVector(0, 0, 0), true);
     shipEntity.body.setLinvel(toRapierVector(0, 0, 0), true);

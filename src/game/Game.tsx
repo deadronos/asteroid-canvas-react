@@ -74,6 +74,21 @@ export default function Game() {
     useHudStore.getState().setGameState('menu');
   };
 
+  // Keep the HUD's auto-turret toggle wired to the session config. The
+  // keyboard `T` key toggles `session.config.autoTurretsEnabled` directly
+  // via the step function, but the HUD button previously only flipped the
+  // Zustand UI state, so clicking it changed the label without affecting
+  // gameplay.
+  const handleToggleAutoTurrets = () => {
+    if (!session) {
+      useHudStore.getState().toggleAutoTurrets();
+      return;
+    }
+    const next = !session.config.autoTurretsEnabled;
+    session.setConfig({ autoTurretsEnabled: next });
+    useHudStore.getState().setAutoTurrets(next);
+  };
+
   if (bootError) {
     return (
       <div className="game-shell">
@@ -103,7 +118,7 @@ export default function Game() {
         <Scene session={session} inputRef={inputRef} />
       </Canvas>
       {gameState === 'menu' && <StartMenu onStart={handleStartGame} />}
-      {gameState === 'playing' && <Hud />}
+      {gameState === 'playing' && <Hud onToggleAutoTurrets={handleToggleAutoTurrets} />}
       {gameState === 'gameover' && (
         <GameOver onRestart={handleStartGame} onReturnToMenu={handleReturnToMenu} />
       )}

@@ -248,4 +248,59 @@ describe('shipWeaponSystem', () => {
 
     expect(spawned).toBe(true);
   });
+
+  it('does not fire auto-turrets when isPlaying is false (Bug #4)', () => {
+    const session = createGameSession();
+    session.setConfig({ gameState: 'menu', autoTurretsEnabled: true });
+
+    const ship = session.getPlayerShip()!;
+    ship.ship!.autoTurrets = true;
+    ship.ship!.turretCooldowns = [0, 0];
+
+    // Place an asteroid in range.
+    const asteroids = Array.from(session.queries.asteroids);
+    asteroids[0].body.setTranslation({ x: 0, y: 0, z: 2 }, true);
+
+    let spawnCount = 0;
+    const mockSpawnApi = {
+      spawnShip: () => ship,
+      spawnAsteroid: () => ship,
+      spawnProjectile: () => {
+        spawnCount += 1;
+        return ship;
+      },
+    };
+
+    // isPlaying = false (menu state) should suppress auto-turret firing
+    // even though autoTurrets is true and there is a valid target.
+    updateShipWeapons(ship, 1 / 60, EMPTY_INPUT, session, mockSpawnApi, false);
+
+    expect(spawnCount).toBe(0);
+  });
+
+  it('does not fire auto-turrets when gameState is "gameover" (Bug #4)', () => {
+    const session = createGameSession();
+    session.setConfig({ gameState: 'gameover', autoTurretsEnabled: true });
+
+    const ship = session.getPlayerShip()!;
+    ship.ship!.autoTurrets = true;
+    ship.ship!.turretCooldowns = [0, 0];
+
+    const asteroids = Array.from(session.queries.asteroids);
+    asteroids[0].body.setTranslation({ x: 0, y: 0, z: 2 }, true);
+
+    let spawnCount = 0;
+    const mockSpawnApi = {
+      spawnShip: () => ship,
+      spawnAsteroid: () => ship,
+      spawnProjectile: () => {
+        spawnCount += 1;
+        return ship;
+      },
+    };
+
+    updateShipWeapons(ship, 1 / 60, EMPTY_INPUT, session, mockSpawnApi, false);
+
+    expect(spawnCount).toBe(0);
+  });
 });

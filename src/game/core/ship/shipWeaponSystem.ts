@@ -100,5 +100,7 @@ export function updateShipWeapons(
     fireManualWeapons(shipEntity, spawnApi);
   }
 
-  fireAutoTurrets(shipEntity, store, spawnApi);
+  if (isPlaying) {
+    fireAutoTurrets(shipEntity, store, spawnApi);
+  }
 }
