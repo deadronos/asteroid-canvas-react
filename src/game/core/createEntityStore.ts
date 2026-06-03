@@ -52,6 +52,15 @@ export function createEntityStore(eventBus: GameEventBus): EntityStore {
     structureListeners.clear();
   };
 
+  const clearTransientEntities = () => {
+    for (const asteroid of Array.from(queries.asteroids)) {
+      removeEntity(asteroid);
+    }
+    for (const projectile of Array.from(queries.projectiles)) {
+      removeEntity(projectile);
+    }
+  };
+
   return {
     ecs,
     physics,
@@ -63,5 +72,6 @@ export function createEntityStore(eventBus: GameEventBus): EntityStore {
     subscribeStructure,
     getStructureRevision: () => structureRevision,
     dispose,
+    clearTransientEntities,
   };
 }

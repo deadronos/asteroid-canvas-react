@@ -63,12 +63,14 @@ export default function Game() {
   };
 
   const handleStartGame = () => {
+    session?.clearTransientEntities();
     resetShip();
     session?.setConfig({ gameState: 'playing' });
     useHudStore.getState().setGameState('playing');
   };
 
   const handleReturnToMenu = () => {
+    session?.clearTransientEntities();
     resetShip();
     session?.setConfig({ gameState: 'menu' });
     useHudStore.getState().setGameState('menu');

@@ -42,6 +42,7 @@ export function createGameSession(): GameSession {
 
     if (input.toggleAutoTurrets) {
       config.autoTurretsEnabled = !config.autoTurretsEnabled;
+      eventBus.emit('configChange', { autoTurretsEnabled: config.autoTurretsEnabled });
     }
 
     shipSystems.updateShip(shipEntity, clampedDt, input);
@@ -68,7 +69,14 @@ export function createGameSession(): GameSession {
     config,
     step,
     setConfig: (updates) => {
+      const prevAutoTurrets = config.autoTurretsEnabled;
       Object.assign(config, updates);
+      if (
+        updates.autoTurretsEnabled !== undefined &&
+        updates.autoTurretsEnabled !== prevAutoTurrets
+      ) {
+        eventBus.emit('configChange', { autoTurretsEnabled: config.autoTurretsEnabled });
+      }
     },
     dispose: store.dispose,
     getPlayerShip: store.getPlayerShip,
@@ -76,5 +84,6 @@ export function createGameSession(): GameSession {
     getStructureRevision: store.getStructureRevision,
     addEntity: store.addEntity,
     removeEntity: store.removeEntity,
+    clearTransientEntities: store.clearTransientEntities,
   };
 }

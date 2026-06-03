@@ -27,6 +27,7 @@ export interface EntityStore {
   subscribeStructure: (listener: () => void) => () => void;
   getStructureRevision: () => number;
   dispose: () => void;
+  clearTransientEntities: () => void;
 }
 
 export interface SpawnApi {
@@ -56,4 +57,5 @@ export interface GameSession {
   getStructureRevision: () => number;
   addEntity: (entity: GameEntity) => GameEntity;
   removeEntity: (entity: GameEntity) => void;
+  clearTransientEntities: () => void;
 }
