@@ -6,7 +6,7 @@ import {
   ASTEROID_SPAWN_RADIUS_MIN,
   PROJECTILE_TTL,
 } from './sessionConstants';
-import { makeId, randomBetween, toRapierVector } from './spatial';
+import { makeId, randomBetween, toRapierVector } from './vectorMath';
 import type { EntityStore, SpawnApi } from './sessionTypes';
 import type { ShipBlueprint } from './types';
 

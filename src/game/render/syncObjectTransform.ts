@@ -1,6 +1,6 @@
 import type * as THREE from 'three';
 
-import { copyBodyQuaternion, copyBodyTranslation } from '../core/spatial';
+import { copyBodyQuaternion, copyBodyTranslation } from '../core/bodyTransform';
 import type { GameEntity } from '../core/types';
 
 export function syncObjectTransform(object: THREE.Object3D | null, entity: GameEntity) {

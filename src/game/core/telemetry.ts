@@ -1,5 +1,5 @@
 import type { GameEventBus } from './events';
-import { copyBodyLinvel } from './spatial';
+import { copyBodyLinvel } from './bodyTransform';
 import type { GameEntity } from './types';
 
 export function syncTelemetry(

@@ -1,29 +1,19 @@
+/**
+ * Helpers that read or mutate a Rapier rigid body and return values
+ * the rest of the simulation can consume (Three.js vectors,
+ * quaternions, plain numbers, etc.).
+ *
+ * Renamed from `spatial.ts` to reflect what it actually contains —
+ * body-transform helpers, not a spatial index. The `spatial.ts` name
+ * is reserved for a future real spatial index (see issue #7).
+ */
 import * as THREE from 'three';
 
 import { RAPIER } from './rapier';
+import { toRapierVector } from './vectorMath';
 
 const FORWARD_VECTOR = new THREE.Vector3(0, 0, -1);
 const RIGHT_VECTOR = new THREE.Vector3(1, 0, 0);
-
-export function makeId(prefix: string) {
-  return `${prefix}-${Math.random().toString(36).slice(2, 8)}-${Date.now().toString(36)}`;
-}
-
-export function randomBetween(min: number, max: number) {
-  return min + Math.random() * (max - min);
-}
-
-export function toRapierVector(x: number, y: number, z: number): RAPIER.Vector {
-  return { x, y, z };
-}
-
-export function toThreeVector(vector: RAPIER.Vector) {
-  return new THREE.Vector3(vector.x, vector.y, vector.z);
-}
-
-export function toThreeQuaternion(rotation: RAPIER.Rotation) {
-  return new THREE.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
-}
 
 export function copyBodyTranslation(body: RAPIER.RigidBody) {
   const { x, y, z } = body.translation();

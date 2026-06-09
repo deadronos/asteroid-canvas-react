@@ -1,5 +1,6 @@
 import type { GameEventBus } from './events';
-import { copyBodyTranslation, randomBetween, toRapierVector } from './spatial';
+import { copyBodyTranslation } from './bodyTransform';
+import { randomBetween, toRapierVector } from './vectorMath';
 import type { EntityStore } from './sessionTypes';
 import type { GameEntity } from './types';
 

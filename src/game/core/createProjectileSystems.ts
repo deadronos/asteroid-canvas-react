@@ -1,4 +1,4 @@
-import { copyBodyTranslation } from './spatial';
+import { copyBodyTranslation } from './bodyTransform';
 import { DESPAWN_DISTANCE } from './sessionConstants';
 import type { EntityStore } from './sessionTypes';
 import type { GameEntity } from './types';

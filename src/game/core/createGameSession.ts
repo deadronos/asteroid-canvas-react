@@ -10,7 +10,7 @@ import { createShipSystems } from './createShipSystems';
 import { createSpawnApi } from './createSpawnApi';
 import { assertRapierReady } from './rapier';
 import { ASTEROID_TARGET_COUNT } from './sessionConstants';
-import { countEntities } from './spatial';
+import { countEntities } from './bodyTransform';
 import type { GameSession, SessionConfig } from './sessionTypes';
 import { syncTelemetry } from './telemetry';
 import { EMPTY_INPUT } from './types';
