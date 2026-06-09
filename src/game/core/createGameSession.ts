@@ -31,6 +31,9 @@ export function createGameSession(): GameSession {
   const combatSystems = createCombatSystems(store, shipSystems.applyShipDamage, eventBus);
   const projectileSystems = createProjectileSystems(store);
   const asteroidField = createAsteroidField(store, spawnApi);
+  // Wire asteroidField.reset into clearTransientEntities so a restart
+  // doesn't cause a single-tick re-population of the field (see #5).
+  store.setOnClearTransient(asteroidField.reset);
 
   const step = (dt: number, input: InputSnapshot = EMPTY_INPUT) => {
     const clampedDt = Math.min(dt, 1 / 20);
@@ -85,5 +88,6 @@ export function createGameSession(): GameSession {
     addEntity: store.addEntity,
     removeEntity: store.removeEntity,
     clearTransientEntities: store.clearTransientEntities,
+    setOnClearTransient: store.setOnClearTransient,
   };
 }

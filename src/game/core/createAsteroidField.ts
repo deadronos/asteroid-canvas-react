@@ -38,5 +38,12 @@ export function createAsteroidField(store: EntityStore, spawnApi: SpawnApi) {
 
   return {
     maintainAsteroids,
+    reset: () => {
+      // Re-arm the respawn delay so the next maintainAsteroids step
+      // cannot re-populate ASTEROID_TARGET_COUNT in a single tick
+      // (Bug #5). The throttling check is `if (asteroidRespawnTimer >
+      // 0) return;` so the value must be strictly positive, not zero.
+      asteroidRespawnTimer = ASTEROID_RESPAWN_DELAY;
+    },
   };
 }
