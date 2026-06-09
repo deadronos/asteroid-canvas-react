@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import * as THREE from 'three';
 
 import { createGameSession } from './createGameSession';
 import { ensureRapierReady, RAPIER } from './rapier';
@@ -77,6 +78,52 @@ describe('createCombatSystems', () => {
     for (const asteroid of Array.from(target.queries.asteroids)) {
       target.removeEntity(asteroid);
     }
+  }
+
+  /**
+   * Spawn a fast-moving projectile at the given position with the given
+   * linear velocity. Mirrors `spawnTestAsteroid` for the projectile case;
+   * lets us set a custom speed and a known starting position so a single
+   * `session.step()` produces a known prev -> curr segment.
+   */
+  function spawnTestProjectile(
+    target: GameSession,
+    id: string,
+    x: number,
+    y: number,
+    z: number,
+    vx: number,
+    vy: number,
+    vz: number,
+  ) {
+    const body = target.physics.createRigidBody(
+      RAPIER.RigidBodyDesc.dynamic()
+        .setTranslation(x, y, z)
+        .setLinearDamping(0)
+        .setAngularDamping(0),
+    );
+    target.physics.createCollider(
+      RAPIER.ColliderDesc.ball(0.16).setSensor(true).setMass(0.01),
+      body,
+    );
+    body.setLinvel({ x: vx, y: vy, z: vz }, true);
+    return target.addEntity({
+      id,
+      kind: 'projectile',
+      body,
+      radius: 0.22,
+      renderColor: '#ffffff',
+      // Seed lastPosition to the spawn point so the swept-sphere
+      // segment collapses to zero length on the first frame, which
+      // is the same contract `createSpawnApi.spawnProjectile` uses.
+      projectile: {
+        ttl: 5,
+        damage: 50,
+        owner: 'player',
+        color: '#ffffff',
+        lastPosition: new THREE.Vector3(x, y, z),
+      },
+    });
   }
 
   describe('resolveProjectileHits (Bug #5: no double-counted kills)', () => {
@@ -213,6 +260,86 @@ describe('createCombatSystems', () => {
       // (ship.radius + asteroid.radius + 10) away from the ship.
       const expectedMinX = ship.radius + asteroidSize + 10;
       expect(newX).toBeGreaterThanOrEqual(expectedMinX - 0.5); // tolerate FP error
+    });
+  });
+
+  describe('resolveProjectileHits (Issue #7: swept-sphere collision)', () => {
+    /**
+     * Acceptance criterion from issue #7: a fast projectile (e.g.
+     * 100 m/s for 1 tick) cannot pass through a small asteroid (e.g.
+     * 0.3 m radius) at close range. The previous static radius check
+     * in `resolveProjectileHits` is exactly the bug — it would let the
+     * projectile tunnel because the per-tick travel distance
+     * (100 m/s × 1/60 s ≈ 1.67 m) is far larger than the 0.3 m
+     * asteroid radius and 0.22 m projectile radius combined.
+     *
+     * Geometry: muzzle at z = 0, projectile starts at z = 0 and
+     * travels -Z. Place a 0.3 m asteroid at z = -0.5. After one
+     * 1/60 s step the projectile's new z is roughly -1.67. Static
+     * distance from projectile to asteroid is ~1.17 m, which is
+     * greater than the combined 0.52 m radius — a static test misses.
+     * The swept sphere from (0,0,0) to (0,0,-1.67) passes through
+     * (0,0,-0.5), so the swept test hits.
+     */
+    it('detects a tunneling hit that the static radius check would miss', () => {
+      session = createGameSession();
+      session.setConfig({ gameState: 'playing', autoTurretsEnabled: false });
+      clearAsteroids(session);
+
+      const ship = session.getPlayerShip()!;
+      ship.ship!.hull = 10000;
+      ship.body.setTranslation({ x: 0, y: 0, z: 0 }, true);
+      ship.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+
+      // 100 m/s projectile heading down -Z from origin.
+      spawnTestProjectile(session, 'fast-shot', 0, 0, 0, 0, 0, -100);
+      // 0.3 m asteroid sitting 0.5 m down -Z (in the path).
+      spawnTestAsteroid(session, 'tunnel-target', 0, 0, -0.5, 0.3, 1);
+
+      const destroyedCounts: number[] = [];
+      session.eventBus.on('asteroidDestroyed', ({ count }) => {
+        destroyedCounts.push(count);
+      });
+
+      // One step: projectile moves ~1.67 m, the static radius check
+      // would put it well past the asteroid (tunnel). With the swept
+      // sphere the hit is detected.
+      session.step(1 / 60, input(false));
+
+      expect(destroyedCounts).toEqual([1]);
+      // The projectile that tunneled through is also consumed.
+      expect(
+        Array.from(session.queries.projectiles).find((p) => p.id === 'fast-shot'),
+      ).toBeUndefined();
+    });
+
+    it('does not false-positive on a projectile that narrowly misses', () => {
+      session = createGameSession();
+      session.setConfig({ gameState: 'playing', autoTurretsEnabled: false });
+      clearAsteroids(session);
+
+      const ship = session.getPlayerShip()!;
+      ship.ship!.hull = 10000;
+      ship.body.setTranslation({ x: 0, y: 0, z: 0 }, true);
+      ship.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+
+      // Projectile on a +X trajectory that passes 2 m to the side of
+      // the asteroid at the origin. Combined radius is 0.52 m, so
+      // even a swept sphere should not register a hit.
+      spawnTestProjectile(session, 'miss-shot', -5, 0, 0, 100, 0, 0);
+      spawnTestAsteroid(session, 'side-asteroid', 0, 0, 0, 0.3, 1000);
+
+      const destroyedCounts: number[] = [];
+      session.eventBus.on('asteroidDestroyed', ({ count }) => {
+        destroyedCounts.push(count);
+      });
+
+      session.step(1 / 60, input(false));
+
+      expect(destroyedCounts).toEqual([]);
+      expect(
+        Array.from(session.queries.projectiles).find((p) => p.id === 'miss-shot'),
+      ).toBeDefined();
     });
   });
 });

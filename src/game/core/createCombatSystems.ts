@@ -1,6 +1,6 @@
 import type { GameEventBus } from './events';
 import { copyBodyTranslation } from './bodyTransform';
-import { randomBetween, toRapierVector } from './vectorMath';
+import { distancePointToSegmentSquared, randomBetween, toRapierVector } from './vectorMath';
 import type { EntityStore } from './sessionTypes';
 import type { GameEntity } from './types';
 
@@ -18,20 +18,41 @@ export function createCombatSystems(
     const destroyedAsteroids = new Set<GameEntity>();
 
     for (const projectile of projectiles) {
-      const projectilePosition = copyBodyTranslation(projectile.body);
+      if (!projectile.projectile) {
+        continue;
+      }
+
+      const currPosition = copyBodyTranslation(projectile.body);
+      // `lastPosition` is seeded to the muzzle at spawn time and
+      // refreshed by `createProjectileSystems.captureProjectilePrevPositions`
+      // immediately before each `physics.step()`. If the projectile
+      // was just spawned this step, prev === curr and the swept
+      // segment has zero length — the test below degrades to a static
+      // radius check against the spawn point, which is the desired
+      // "no self-hit" behavior.
+      const prevPosition = projectile.projectile.lastPosition;
 
       for (const asteroid of asteroids) {
         const asteroidPosition = copyBodyTranslation(asteroid.body);
         const impactDistance = projectile.radius + asteroid.radius;
 
-        if (
-          projectilePosition.distanceToSquared(asteroidPosition) >
-          impactDistance * impactDistance
-        ) {
+        // Swept-sphere test (issue #7): the projectile's swept volume
+        // is the capsule from `prevPosition` to `currPosition` with
+        // radius `projectile.radius`. A hit is any asteroid whose
+        // center is within `impactDistance` of that capsule. This
+        // prevents fast projectiles from tunneling through small
+        // asteroids between physics steps, which the previous static
+        // radius check allowed.
+        const distSq = distancePointToSegmentSquared(
+          asteroidPosition,
+          prevPosition,
+          currPosition,
+        );
+        if (distSq > impactDistance * impactDistance) {
           continue;
         }
 
-        if (asteroid.asteroid && projectile.projectile) {
+        if (asteroid.asteroid) {
           asteroid.asteroid.hitPoints -= projectile.projectile.damage;
         }
 

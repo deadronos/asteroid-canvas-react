@@ -24,7 +24,7 @@ We chose to decouple the simulation core entirely from React and Three.js by run
  │   Rapier3D Physics World                               │
  │     [ RigidBody (ship) ] <---> [ RigidBody (asteroid) ]│
  └──────────────────────────┬─────────────────────────────┘
-                            │ (Reads spatial values)
+                            │ (Reads body transforms)
                             ▼
            [ Scene / Mesh Render Loop (R3F) ]
 ```

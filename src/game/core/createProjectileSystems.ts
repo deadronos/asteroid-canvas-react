@@ -4,6 +4,24 @@ import type { EntityStore } from './sessionTypes';
 import type { GameEntity } from './types';
 
 export function createProjectileSystems(store: EntityStore) {
+  /**
+   * Snapshots each live projectile's current world position into
+   * `projectile.lastPosition`. Must be called immediately before
+   * `physics.step()` so the next `resolveProjectileHits` call has
+   * the prev->curr segment it needs to run the swept-sphere test.
+   *
+   * (See issue #7: the static radius test tunneled fast projectiles
+   * through small asteroids at close range.)
+   */
+  const captureProjectilePrevPositions = () => {
+    for (const projectile of store.queries.projectiles) {
+      if (!projectile.projectile) {
+        continue;
+      }
+      projectile.projectile.lastPosition = copyBodyTranslation(projectile.body);
+    }
+  };
+
   const updateProjectiles = (dt: number, shipEntity: GameEntity) => {
     const shipPosition = copyBodyTranslation(shipEntity.body);
     const expiredProjectiles: GameEntity[] = [];
@@ -26,6 +44,7 @@ export function createProjectileSystems(store: EntityStore) {
   };
 
   return {
+    captureProjectilePrevPositions,
     updateProjectiles,
   };
 }

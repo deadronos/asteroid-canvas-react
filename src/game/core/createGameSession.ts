@@ -49,6 +49,10 @@ export function createGameSession(): GameSession {
     }
 
     shipSystems.updateShip(shipEntity, clampedDt, input);
+    // Snapshot projectile positions BEFORE physics integrates them, so
+    // `resolveProjectileHits` can build the prev->curr segment for the
+    // swept-sphere collision (issue #7).
+    projectileSystems.captureProjectilePrevPositions();
     store.physics.timestep = clampedDt;
     store.physics.step();
     combatSystems.resolveProjectileHits();

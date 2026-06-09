@@ -68,7 +68,6 @@ describe('highScore (Issue #6: poisoned localStorage repair)', () => {
   it('returns 0 (and does not throw) when localStorage is missing (SSR / no window)', () => {
     const originalWindow = globalThis.window;
     // Simulate a non-browser environment.
-    // @ts-expect-error - intentionally removing window for the test
     delete (globalThis as { window?: unknown }).window;
 
     try {
