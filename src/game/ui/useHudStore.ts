@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import type { TelemetrySnapshot } from '../core/types';
+import { HIGH_SCORE_STORAGE_KEY, readAndNormalizeHighScore } from './highScore';
 
 const defaultTelemetry: TelemetrySnapshot = {
   shipName: 'Venture Cruiser',
@@ -15,19 +16,10 @@ const defaultTelemetry: TelemetrySnapshot = {
   turretCount: 2,
 };
 
-const getStoredHighScore = (): number => {
-  if (typeof window === 'undefined') {
-    return 0;
-  }
-  // `Number()` returns NaN for non-numeric strings (e.g. corrupted
-  // localStorage, a different app's value with the same key, or a
-  // future schema change). NaN poisons downstream comparisons like
-  // `highScore > 0` and `Math.max(NaN, n) === NaN`, so we explicitly
-  // fall back to 0 and rewrite the bad value the next time the score
-  // is incremented.
-  const stored = Number(localStorage.getItem('asteroid_highscore'));
-  return Number.isFinite(stored) && stored >= 0 ? stored : 0;
-};
+// Initial high score is read once at module load. Poisoned or missing
+// keys are normalized in-place by `readAndNormalizeHighScore` (see
+// issue #6), so the in-memory baseline always agrees with storage.
+const getStoredHighScore = (): number => readAndNormalizeHighScore();
 
 interface HudStore {
   gameState: 'menu' | 'playing' | 'gameover';
@@ -68,7 +60,7 @@ export const useHudStore = create<HudStore>((set) => ({
       const nextScore = state.asteroidsDestroyed + 1;
       const nextHighScore = Math.max(state.highScore, nextScore);
       if (nextHighScore > state.highScore && typeof window !== 'undefined') {
-        localStorage.setItem('asteroid_highscore', String(nextHighScore));
+        localStorage.setItem(HIGH_SCORE_STORAGE_KEY, String(nextHighScore));
       }
       return {
         asteroidsDestroyed: nextScore,
