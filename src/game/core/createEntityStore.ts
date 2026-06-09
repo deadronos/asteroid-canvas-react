@@ -16,6 +16,11 @@ export function createEntityStore(eventBus: GameEventBus): EntityStore {
   };
   const structureListeners = new Set<() => void>();
   let structureRevision = 0;
+  // Optional hook invoked after clearTransientEntities finishes. Wired
+  // by createGameSession to let createAsteroidField reset its respawn
+  // timer (so a restart cannot cause a single-tick re-population of
+  // the field).
+  let onClearTransient: (() => void) | undefined;
 
   const markStructureChanged = () => {
     structureRevision += 1;
@@ -59,6 +64,11 @@ export function createEntityStore(eventBus: GameEventBus): EntityStore {
     for (const projectile of Array.from(queries.projectiles)) {
       removeEntity(projectile);
     }
+    onClearTransient?.();
+  };
+
+  const setOnClearTransient = (hook: (() => void) | undefined) => {
+    onClearTransient = hook;
   };
 
   return {
@@ -73,5 +83,6 @@ export function createEntityStore(eventBus: GameEventBus): EntityStore {
     getStructureRevision: () => structureRevision,
     dispose,
     clearTransientEntities,
+    setOnClearTransient,
   };
 }

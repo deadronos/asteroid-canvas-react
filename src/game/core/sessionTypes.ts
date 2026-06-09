@@ -28,6 +28,7 @@ export interface EntityStore {
   getStructureRevision: () => number;
   dispose: () => void;
   clearTransientEntities: () => void;
+  setOnClearTransient: (hook: (() => void) | undefined) => void;
 }
 
 export interface SpawnApi {
@@ -58,4 +59,5 @@ export interface GameSession {
   addEntity: (entity: GameEntity) => GameEntity;
   removeEntity: (entity: GameEntity) => void;
   clearTransientEntities: () => void;
+  setOnClearTransient: (hook: (() => void) | undefined) => void;
 }

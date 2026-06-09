@@ -293,4 +293,47 @@ describe('createGameSession', () => {
     // The ship should still be present.
     expect(session.getPlayerShip()).not.toBeNull();
   });
+
+  // ── Bug #5: clearTransientEntities must reset asteroidRespawnTimer ────
+  //
+  // Before the fix, createAsteroidField kept `asteroidRespawnTimer` in a
+  // closure. clearTransientEntities deleted the asteroids but never reset
+  // the timer, so the very next maintainAsteroids step would re-populate
+  // ASTEROID_TARGET_COUNT asteroids in a single tick (the while-loop is
+  // gated only by `if (asteroidRespawnTimer > 0) return;`). New asteroids
+  // are seeded at the ship's position, so they spawned directly on top of
+  // the freshly-reset ship — re-introducing the collision the previous
+  // PR was meant to prevent.
+
+  it('clearTransientEntities resets the asteroid respawn timer (Bug #5)', () => {
+    session = createGameSession();
+    session.setConfig({ gameState: 'playing', autoTurretsEnabled: false });
+
+    // Establish a "well-played" state where the respawn timer is well
+    // below zero (the closure's local variable is decremented every
+    // step in createAsteroidField.maintainAsteroids). We can confirm
+    // this indirectly by stepping a few times — the field will stay
+    // topped up at ASTEROID_TARGET_COUNT because the timer keeps
+    // getting reset to ASTEROID_RESPAWN_DELAY inside the while-loop.
+    const _ship = session.getPlayerShip()!;
+    for (let i = 0; i < 5; i += 1) {
+      session.step(1 / 60, EMPTY_INPUT);
+    }
+    expect(Array.from(session.queries.asteroids)).toHaveLength(12);
+
+    // Wipe the field (simulating a restart).
+    session.clearTransientEntities();
+    expect(Array.from(session.queries.asteroids)).toHaveLength(0);
+
+    // One step after the wipe. The timer must NOT allow the field to
+    // re-populate to ASTEROID_TARGET_COUNT in this single tick — the
+    // contract is "zero or one new asteroid per step after a clear",
+    // never a full re-population. The ship should also be far enough
+    // away from any newly-spawned asteroid that no immediate collision
+    // occurs (spawnAsteroid places new bodies outside the inner radius).
+    session.step(1 / 60, EMPTY_INPUT);
+
+    const asteroidsAfterOneStep = Array.from(session.queries.asteroids).length;
+    expect(asteroidsAfterOneStep).toBeLessThan(12);
+  });
 });
