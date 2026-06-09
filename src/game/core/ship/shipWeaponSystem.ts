@@ -1,4 +1,4 @@
-import { copyBodyTranslation, getForward, projectLocalPoint } from '../spatial';
+import { copyBodyTranslation, getForward, projectLocalPoint } from '../bodyTransform';
 import type { EntityStore, SpawnApi } from '../sessionTypes';
 import type { GameEntity, InputSnapshot } from '../types';
 

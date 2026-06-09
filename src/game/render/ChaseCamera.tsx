@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
-import { copyBodyTranslation } from '../core/spatial';
+import { copyBodyTranslation } from '../core/bodyTransform';
 import type { GameSession } from '../core/sessionTypes';
 import { useHudStore } from '../ui/useHudStore';
 

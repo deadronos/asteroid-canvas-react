@@ -46,8 +46,8 @@ graph TD
 
 ### 4. 3D Physics Simulation
 
-- **Component**: `rapier.ts`, `spatial.ts`
-- **Purpose**: Simulates rigid body dynamics, handles movements, forces, impulses, and velocities. Built on top of `@dimforge/rapier3d-compat`.
+- **Component**: `rapier.ts`, `bodyTransform.ts`, `vectorMath.ts`
+- **Purpose**: Simulates rigid body dynamics, handles movements, forces, impulses, and velocities. Built on top of `@dimforge/rapier3d-compat`. `bodyTransform.ts` (formerly `spatial.ts`, see issue #7) owns helpers that read from a Rapier `RigidBody` and write to a Three.js object. `vectorMath.ts` owns pure math helpers (id generation, random ranges, Rapier ↔ Three.js conversion, point-to-segment squared distance used by swept-sphere collision).
 - **Integrations**: Syncs spatial coordinates between Rapier rigid bodies and Three.js meshes.
 
 ### 5. Gameplay Systems

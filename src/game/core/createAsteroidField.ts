@@ -3,7 +3,7 @@ import {
   ASTEROID_TARGET_COUNT,
   DESPAWN_DISTANCE,
 } from './sessionConstants';
-import { copyBodyTranslation, countEntities } from './spatial';
+import { copyBodyTranslation, countEntities } from './bodyTransform';
 import type { EntityStore, SpawnApi } from './sessionTypes';
 import type { GameEntity } from './types';
 

@@ -2,7 +2,7 @@ import { World as ECSWorld } from 'miniplex';
 
 import type { GameEventBus } from './events';
 import { RAPIER } from './rapier';
-import { toRapierVector } from './spatial';
+import { toRapierVector } from './vectorMath';
 import type { EntityStore, GameQueries } from './sessionTypes';
 import type { GameEntity } from './types';
 

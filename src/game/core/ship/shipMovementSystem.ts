@@ -1,4 +1,4 @@
-import { capHorizontalVelocity, getForward, getRight } from '../spatial';
+import { capHorizontalVelocity, getForward, getRight } from '../bodyTransform';
 import type { GameEntity, InputSnapshot } from '../types';
 
 export function updateShipMovement(

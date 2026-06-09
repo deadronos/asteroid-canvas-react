@@ -10,7 +10,7 @@ import { createShipSystems } from './createShipSystems';
 import { createSpawnApi } from './createSpawnApi';
 import { assertRapierReady } from './rapier';
 import { ASTEROID_TARGET_COUNT } from './sessionConstants';
-import { countEntities } from './spatial';
+import { countEntities } from './bodyTransform';
 import type { GameSession, SessionConfig } from './sessionTypes';
 import { syncTelemetry } from './telemetry';
 import { EMPTY_INPUT } from './types';
@@ -49,6 +49,10 @@ export function createGameSession(): GameSession {
     }
 
     shipSystems.updateShip(shipEntity, clampedDt, input);
+    // Snapshot projectile positions BEFORE physics integrates them, so
+    // `resolveProjectileHits` can build the prev->curr segment for the
+    // swept-sphere collision (issue #7).
+    projectileSystems.captureProjectilePrevPositions();
     store.physics.timestep = clampedDt;
     store.physics.step();
     combatSystems.resolveProjectileHits();

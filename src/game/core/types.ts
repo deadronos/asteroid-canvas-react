@@ -1,4 +1,5 @@
 import type * as RAPIER from '@dimforge/rapier3d-compat';
+import type { Vector3 } from 'three';
 
 export interface HullBlueprint {
   maxHull: number;
@@ -91,6 +92,15 @@ export interface ProjectileRuntimeState {
   damage: number;
   owner: 'player' | 'turret';
   color: string;
+  /**
+   * World-space position at the end of the previous physics step, used
+   * by `resolveProjectileHits` to build the swept sphere for the
+   * current step. Seeded with the muzzle position at spawn time so the
+   * very first frame has a zero-length segment (no spurious hit at
+   * the muzzle). Refreshed by `createProjectileSystems.captureStep`
+   * at the start of every step, immediately before `physics.step()`.
+   */
+  lastPosition: Vector3;
 }
 
 export interface GameEntity {

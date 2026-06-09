@@ -1,5 +1,5 @@
 import type { GameEventBus } from './events';
-import { toRapierVector } from './spatial';
+import { toRapierVector } from './vectorMath';
 import type { SessionConfig } from './sessionTypes';
 import type { GameEntity, ShipRuntimeState } from './types';
 

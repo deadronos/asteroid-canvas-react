@@ -6,7 +6,7 @@ import {
   ASTEROID_SPAWN_RADIUS_MIN,
   PROJECTILE_TTL,
 } from './sessionConstants';
-import { makeId, randomBetween, toRapierVector } from './spatial';
+import { makeId, randomBetween, toRapierVector } from './vectorMath';
 import type { EntityStore, SpawnApi } from './sessionTypes';
 import type { ShipBlueprint } from './types';
 
@@ -128,6 +128,10 @@ export function createSpawnApi(store: EntityStore): SpawnApi {
         damage,
         owner,
         color,
+        // Seed the swept-sphere prev position to the muzzle so the
+        // very first frame (before `captureStep` runs) has a
+        // zero-length segment and cannot register a spurious self-hit.
+        lastPosition: origin.clone(),
       },
     });
   };
